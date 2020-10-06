@@ -1,0 +1,365 @@
+{% include 'toolbar-user.html' %}
+
+{% block header %}
+<header class="jumbotron">
+  <div class="row row-header">
+      <div class="col">
+        <div class="alert alert-info">
+          <small>Last Model Refresh: <strong><em>{{last_model_refresh}}. </em></strong> Species: <em>Amur Tiger, Bengal Tiger, Cheetah, Leopard, Puma, Jaguar, African Lion, African Elephant, Black Rhino, White Rhino, Lowland Tapir, Bongo, Otter.</em> </small>
+        </div>
+      </div>
+  </div>
+</header>
+
+    
+{% endblock %}
+
+
+{% block content %}  
+    <div class="container-fluid">
+    
+    <div class="table-responsive">
+    <table id="table" 
+        data-search="true"
+        data-show-refresh="true"
+        data-show-toggle="true"
+        data-show-fullscreen="true"
+        data-click-to-select="true"
+        data-show-columns="true"
+        data-show-columns-toggle-all="true"
+        data-show-export="true"
+        data-pagination="true"
+        data-side-pagination="server"
+        data-show-jump-to="true"
+        data-unique-id="ID"
+        data-escape="false"
+        data-page-list="[10,25, 50, 100, all]"
+        data-url="get_sightings"
+    >
+    </table>
+    </div>
+
+
+
+    <!-- Modal style="width:95%; height:95%; margin:20px auto" -->
+    <div id="ModalTable" class="modal fade ">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" >
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header text-center d-block">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Observation Detail</h4>
+
+                </div>
+                <div class="modal-body">
+                  <div id="ModalSummary">
+ 
+                    <div class="table-responsive">
+                      <table id="currentsightingtable" class="table table-sm" 
+                        data-locale="en-US"
+                        data-toggle="table"
+                        data-escape="false">
+                      </table>
+                    </div>
+
+                    <div class="row row-content align-items-center">  
+                    <div class="table-responsive">
+                        <table  
+                            id="artifacttable" class="table table-striped table-sm" 
+                            data-locale="en-US"
+                            data-toggle="table"
+                            data-pagination="true"
+                            data-escape="false"
+                            data-undefined-text=""
+                            data-height="350">
+                        </table>
+                    </div>
+                    </div>
+                </div>
+              </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+  </div>
+        
+
+    <script>
+        var $table = $('#table');
+        var $artifactTable=$('#artifactTable');
+        var $currentsightingtable=$('#currentsightingtable');
+        
+        function ModalLinkFormatter(value, row, index) {
+          //console.log(row)
+          //var linktext='<a href=\"javascript:void(0)\" onclick=\"launchModal(\''+JSON.stringify(row)+'\')\">'+value+'</a>'
+          var linktext='<a href=\"javascript:void(0)\" onclick=\"launchModal(\''+row["ID"]+'\')\">'+value+'</a>'
+          //var linktext='<a href=\"javascript:void(0)\" onclick=\"launchModal(\'5efce6c33d65356d5097593c\')\">'+value+'</a>'
+          //var linktext='<a href=\"javascript:void(0)\" onclick=\"launchModal(2)\">'+value+'</a>'
+          //console.log(linktext);
+          return linktext;
+        }
+
+        function launchModal(ID) {
+          //console.log(row)
+          //var ID=row["ID"]
+          //console.log($table.bootstrapTable('getRowByUniqueId', ID))
+          var current_sighting=$table.bootstrapTable('getRowByUniqueId', ID)
+          var detail_url='get_details/?sightingID='+ID
+          //var detail_url='get_details'
+          console.log(detail_url)
+          console.log(current_sighting)
+          $("#currentsightingtable").bootstrapTable('destroy').bootstrapTable({
+            columns: [
+              {
+                title: 'Organization',
+                field: 'Organization',
+                align: 'center',
+                valign: 'middle'
+              },
+              {
+                title: 'Name',
+                field: 'Name',
+                align: 'center',
+                valign: 'middle'
+              }, 
+              {
+                title: 'Date',
+                field: 'TimeStamp',
+                align: 'center',
+                valign: 'middle',
+              }, {
+                title: 'Species',
+                field: 'Species',
+                align: 'center',
+                valign: 'middle'
+              }, {
+                title: 'Predicted Species',
+                field: 'Species_Inference',
+                align: 'center',
+                valign: 'middle',
+              }, {
+                title: 'Individual',
+                field: 'Individual',
+                align: 'center',
+                valign: 'middle'
+              }, {
+                title: 'Predicted Individual',
+                field: 'Individual_Inference',
+                align: 'center',
+                valign: 'middle',
+              }, {
+                title: 'Sex',
+                field: 'Sex',
+                align: 'center',
+                valign: 'middle'
+              } , {
+                title: 'WildTrack Comments',
+                field: 'ExpertComments',
+                align: 'center',
+                valign: 'middle'
+              }
+            ],
+            data:[current_sighting]
+          });
+
+
+          //$("#current_sighting").text(current_sighting);
+          //$("#currentsightingtable").bootstrapTable({data: test_data});
+          //$("#currentsightingtable").bootstrapTable('refresh',{"data": [current_sighting]});
+          $("#artifacttable").bootstrapTable('destroy').bootstrapTable({
+            columns: [
+              {
+                field: 'ID',
+                visible: false,
+              }, 
+              {
+                title: 'Image',
+                field: 'annotated_image',
+                align: 'center',
+                valign: 'middle',
+              }, {
+                title: 'Foot',
+                field: 'Foot',
+                align: 'center',
+                valign: 'middle'
+              },
+              {
+                title: 'Species',
+                field: 'Species_Inference',
+                align: 'center',
+                valign: 'middle',
+              }, {
+                title: 'Individual',
+                field: 'Individual_Inference',
+                align: 'center',
+                valign: 'middle',
+              }, {
+                title: 'Comments',
+                field: 'UserComments',
+                align: 'center',
+                valign: 'middle',
+              }, {
+                title: 'Rating',
+                field: 'Rating',
+                align: 'center',
+                valign: 'middle'
+              },{
+                title: 'WildTrack Comments',
+                field: 'ExpertComments',
+                align: 'center',
+                valign: 'middle'
+              }
+            ],
+            url:detail_url,
+          });
+          //$("#artifacttable").bootstrapTable('refresh', {"url": detail_url});
+          //document.getElementById("artifacttable").url=detail_url;
+          //document.getElementById("ModalSummary").innerHTML = ID;
+          $("#ModalTable").modal();
+        }
+              
+
+        function initTable() {
+          $table.bootstrapTable('destroy').bootstrapTable({
+            height: 650,
+            locale:"en-US",
+            columns: [
+              {
+                title: 'Organization',
+                field: 'Organization',
+                align: 'center',
+                valign: 'middle'
+              },
+              {
+                title: 'Name',
+                field: 'Name',
+                align: 'center',
+                valign: 'middle'
+              }, 
+              {
+                title: 'Date',
+                field: 'TimeStamp',
+                align: 'center',
+                valign: 'middle',
+              }, {
+                title: 'Species',
+                field: 'Species',
+                align: 'center',
+                valign: 'middle'
+              }, {
+                title: 'Predicted Species',
+                field: 'Species_Inference',
+                align: 'center',
+                valign: 'middle',
+              }, {
+                title: 'Individual',
+                field: 'Individual',
+                align: 'center',
+                valign: 'middle',
+                visible: false
+              }, {
+                title: 'Predicted Individual',
+                field: 'Individual_Inference',
+                align: 'center',
+                valign: 'middle',
+                visible: false
+              }, {
+                title: 'Sex',
+                field: 'Sex',
+                align: 'center',
+                valign: 'middle',
+                visible: false
+              }, {
+                title: 'Images',
+                field: 'Images',
+                align: 'center',
+                valign: 'middle',
+                formatter:"ModalLinkFormatter"
+              },{
+                title: 'WildTrack Comments',
+                field: 'ExpertComments',
+                align: 'center',
+                valign: 'middle'
+              },{
+                field: 'ID',
+                visible: false
+              }
+            ]
+          });
+        }
+
+
+        $(function() {
+          initTable()
+        });
+
+        $("#artifacttable").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
+            //console.log("editable:", editable);
+            console.log("field:", field);
+            console.log("row", row[field],row["ID"]);
+            console.log("oldValue", oldValue);
+            //console.log("el", $el);
+            var update_data={"ID":row["ID"],"Field":field,"Value":row[field]};
+            var update_url='/update_artifact_details';
+            //console.log(comment_data);
+            $.ajax({
+              type: 'POST',
+			        url: update_url,
+			        data: update_data,
+			        success: function(response){
+				        console.log(response);
+			        },
+			        error: function(error){
+				        console.log(error);
+			        }
+		        });
+          });
+
+            $("#currentsightingtable").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
+            console.log("field:", field);
+            console.log("row", row[field],row["ID"]);
+            console.log("oldValue", oldValue);
+            var update_data={"ID":row["ID"],"Field":field,"Value":row[field]};
+            var update_url='/update_sighting_details';
+            //console.log(comment_data);
+            $.ajax({
+              type: 'POST',
+			        url: update_url,
+			        data: update_data,
+			        success: function(response){
+				        console.log(response);
+			        },
+			        error: function(error){
+				        console.log(error);
+			        }
+		        });
+          });
+
+
+            $("#table").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
+            console.log("field:", field);
+            console.log("row", row[field],row["ID"]);
+            console.log("oldValue", oldValue);
+            var update_data={"ID":row["ID"],"Field":field,"Value":row[field]};
+            var update_url='/update_sighting_details';
+            //console.log(comment_data);
+            $.ajax({
+              type: 'POST',
+			        url: update_url,
+			        data: update_data,
+			        success: function(response){
+				        console.log(response);
+			        },
+			        error: function(error){
+				        console.log(error);
+			        }
+		        });
+        });
+
+
+
+
+      </script>
+{% endblock %} 

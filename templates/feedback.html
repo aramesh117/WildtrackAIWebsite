@@ -1,0 +1,44 @@
+{% include 'toolbar-user.html' %}
+
+{% block header %}
+
+
+
+{% endblock %}
+
+{% block content %}  
+<div class="container-fluid">
+  <div class="table-responsive">
+      <table  
+          id="feedbackTable" class="table table-striped table-sm" 
+          data-locale="en-US"
+          data-toggle="table"
+          data-search="true"
+          data-show-refresh="true"
+          data-show-toggle="true"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-show-export="true"
+          data-pagination="true"
+          data-side-pagination="server"
+          data-id-field="ID"
+          data-escape="false"
+          data-undefined-text=""
+          data-page-list="[10, 25, 50, 100, all]"
+          data-url="get_feedback_admin"
+          data-height="800">
+          <thead>
+              <tr>
+                  <th data-field="Name" data-width="15" data-width-unit="%" data-halign="center" data-valign="middle" data-editable="false" data-editable-type="text" data-editable-emptytext="Click to Add">Name</th>
+                  <th data-field="Email" data-width="15" data-width-unit="%" data-halign="center" data-valign="middle" data-editable="false" data-editable-type="text" data-editable-emptytext="Click to Add">Email</th>
+                  <th data-field="Comments" data-width="35" data-width-unit="%" data-halign="center" data-valign="middle" data-height="100" data-editable="false" data-editable-type="text" data-editable-emptytext="Click to Add">Comments</th>
+                  <th data-field="Response" data-width="35" data-width-unit="%" data-halign="center" data-valign="middle" data-editable="false" data-editable-type="text" data-editable-emptytext="Click to Add">Response</th>
+                  <th data-field="ID" data-visible="false">ID</th>
+              </tr>
+          </thead>
+      </table>
+  </div>
+</div>
+
+{% endblock %} 

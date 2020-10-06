@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css" rel="stylesheet">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    
+    <link href="https://cdn.jsdelivr.net/gh/Talv/x-editable@develop/dist/bootstrap4-editable/css/bootstrap-editable.css" rel="stylesheet">
+
+       <!-- Specific styling for this page -->
+       <link rel="stylesheet" href="static/styles.css">
+       <link rel="stylesheet" href="static/fontawesome/css/all.css">
+    <title>WildTrack FIT AI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table-locale-all.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/Talv/x-editable@develop/dist/bootstrap4-editable/js/bootstrap-editable.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/editable/bootstrap-table-editable.min.js"></script>
+
+</head>
+<body>
+    
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="Navbar">    
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active"><a class="nav-link" href="/"><span class="fa fa-home fa-lg"></span> WildTrack AI</a></li>
+                <li class="nav-item"><a class="nav-link" href="/sightings_page"><span class="fa fa-eye fa-lg"></span> Observations</a></li>
+                <li class="nav-item"><a class="nav-link" href="/images_page"><span class="fa fa-camera fa-lg"></span> Images</a></li>
+            </ul>
+        </div>
+
+
+
+    </nav>
+
+    <header class="jumbotron">
+        <div class="container">
+            <div class="row row-header">
+                <div class="col">
+                    <div class="col align-self-center">
+                        <img src="static/wildtrack-logo.png" class="img-fluid">
+                    </div>
+                    <div>
+                        <p>Combining the time honoured art and science of tracking with the power of Artificial Intelligence </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="row row-content align-items-center">
+            <div class="col-12 col-sm-6">
+                <h2>Project Overview</h2>
+                <p><a href="https://wildtrack.org">WildTrack (wildtrack.org)</a> is a non-profit organization that aims to develop and provide non-invasive but effective monitoring of endangered species in order to mitigate human
+                     wildlife conflicts and prevent illegal poaching.</p>
+                <p>Traditional wildlife monitoring techniques rely on fitting instrumentation, marking, capture, or close visual observation of animals. All of these modalities have shown to have 
+                    counterproductive effects on conservation efforts. WildTrack was founded on the premise that monitoring could be made safer and more efficient using non-invasive techniques based on the time-honored 
+                    tradition of trail and footprint tracking used by indigenous trackers.</p>
+                <p>Started in February 2020 as a collaboration between WildTrack and the UC Berkeley School of Information, WildTrackAI is an initiative 
+                    to enhance the current state of the art in non-invasive Wildlife Monitoring by incorporate emerging techniques in Deep Learning based Computer Vision.</p>
+            </div>
+            <div class="col-sm">
+                <div class="card">
+                    <h5 class="card-header">By the Numbers</h5>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-6">Total Images</dt>
+                            {% if total_images %}
+                            <dd class="col-6">{{ total_images }}</dd>
+                            {% else %}
+                            <dd class="col-6">0</dd>
+                            {% endif %}
+                            <dt class="col-6">Number of Species</dt>
+                            {% if num_species %}
+                            <dd class="col-6">{{ num_species }}</dd>
+                            {% else %}
+                            <dd class="col-6">0</dd>
+                            {% endif %}
+                            <dt class="col-6">Number of individual Animals</dt>
+                            {% if num_individuals %}
+                            <dd class="col-6">{{ num_individuals }}</dd>
+                            {% else %}
+                            <dd class="col-6">0</dd>
+                            {% endif %}
+                            <dt class="col-6">Model Prediction Tasks</dt>
+                            <dd class="col-6">Footprint Detection, Classification of Species & Gender, Identification of Individual Animal</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row row-content align-items-center">
+            <div class="col-12 col-sm-9">
+                <h2>Species</h2>
+                <div class="table-responsive">
+                 <table class="table table-striped">
+                     <thead class="thead-dark">
+                         <tr>
+                            <th>Species</th>
+                            <th style="text-align:center">Individuals</th>
+                            <th style="text-align:center">Images</th>
+                            <th style="text-align:center">Females</th>
+                            <th style="text-align:center">Males</th>
+                            <th style="text-align:center">Sex Unknown</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                        {% for species in species_list %} 
+                        <tr>
+                            <th>{{ species[0] }}</th>
+                            <td style="text-align:center">{{ species[1] }}</td>
+                            <td style="text-align:center">{{ species[2] }}</td>
+                            <td style="text-align:center">{{ species[3] }}</td>
+                            <td style="text-align:center">{{ species[4] }}</td>
+                            <td style="text-align:center">{{ species[5] }}</td>
+                        </tr>
+                        {%endfor%} 
+                     </tbody>
+                 </table>
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <h2>Leaderboard</h2>
+                <div class="table-responsive">
+                 <table class="table table-striped">
+                     <thead class="thead-dark">
+                         <tr>
+                            <th>Name</th>
+                            <th style="text-align:center">Images</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                        {% for leader in leaderboard %} 
+                        <tr>
+                            <th>{{ leader[0] }}</th>
+                            <td style="text-align:center">{{ leader[1] }}</td>
+                        </tr>
+                        {%endfor%} 
+                     </tbody>
+                 </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    
+    
+</body>
+
+</html>

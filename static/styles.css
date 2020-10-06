@@ -1,0 +1,123 @@
+.row-header {
+	margin: 0px auto;
+	padding: 0px 0px; }
+  
+.row-content {
+margin: 0px auto;
+padding: 5px 0px;
+border-bottom: 1px ridge;
+min-height: 400px; }
+
+.footer {
+background-color: #D1C4E9;
+margin: 0px auto;
+padding: 20px 0px; }
+
+.jumbotron {
+margin: 0px auto;
+padding: 10px 10px;
+background: rgb(250, 250, 250);
+color: rgb(18, 2, 73); 
+text-align: center;
+}
+
+
+.jumbotron .carousel-text {
+    position: absolute; /* Position the background text */
+    width: 80%; /* Full width */
+    left: 10%;
+    bottom: 0; /* At the bottom. Use top:0 to append it to the top */
+    background: rgb(0, 0, 0); /* Fallback color */
+    background: rgba(0, 0, 0, 0.35); /* Black background with 0.5 opacity */
+    color: #f1f1f1; /* Grey text */
+    padding: 10px; /* Some padding */
+    display: inline-block;
+}
+
+.jumbotron .carousel-indicators{
+    position: absolute;
+    top: 15px;    
+}
+
+body {
+padding: 50px 0px 0px 0px;
+font-size: 16px;
+z-index: 0; }
+
+.table-fixed tbody {
+    height: 300px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.table-fixed thead,
+.table-fixed tbody,
+.table-fixed tr,
+.table-fixed td,
+.table-fixed th {
+    display: block;
+}
+
+.table-fixed tbody td,
+.table-fixed tbody th,
+.table-fixed thead > tr > th {
+    float: left;
+    position: relative;
+
+    &::after {
+        content: '';
+        clear: both;
+        display: block;
+    }
+}
+
+.container.body-container{
+    padding: 0px;
+    background-color: #ddd;
+  }
+
+.tab-content {
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	padding: 5px; }
+
+textarea {
+    width:		100%;
+	height: 	10em;
+}
+
+
+.modal-lg {
+	max-width: 95%;
+	max-height: 95%;
+}
+	
+.navbar-dark {
+	background-color: #442d07;
+}
+
+#modelstatsspecies th,
+#modelstatsspecies td
+{
+  border: 1px solid rgb(15, 196, 241);
+}
+
+#modelstatsindividual th,
+#modelstatsindividual td
+{
+  border: 1px solid rgb(11, 157, 108);
+}
+
+canvas { 
+    background-color : #eee;
+}
+
+.team-block { }
+.team-img { margin-bottom: 20px; position: relative; }
+.team-img img { width: 100%; }
+.team-img img.border { border-color: #fff !important; }
+.social-media { position: absolute; bottom: 36px; opacity: 0; }
+.social-icon-box { margin-bottom: 5px; background-color: #193e6b; width: 46px; height: 46px; color: #ffffff; font-size: 16px; padding: 15px 19px 26px 16px; display: inline-block; line-height: 1.2; }
+.team-img:hover .social-media { opacity: 1; transition: 2s ease; }
+.team-block.active .social-media { opacity: 1; transition: 2s ease; }

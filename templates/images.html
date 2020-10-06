@@ -1,0 +1,156 @@
+{% include 'toolbar-user.html' %}
+
+{% block header %}
+<header class="jumbotron">
+  <div class="row row-header">
+      <div class="col">
+        <div class="alert alert-info">
+          <small>Last Model Refresh: <strong><em>{{last_model_refresh}}. </em></strong> Species: <em>Amur Tiger, Bengal Tiger, Cheetah, Leopard, Puma, Jaguar, African Lion, African Elephant, Black Rhino, White Rhino, Lowland Tapir, Bongo, Otter.</em> </small>
+        </div>
+      </div>
+  </div>
+</header>
+
+    
+
+{% endblock %}
+
+{% block content %}  
+    <div class="container-fluid">
+        <div class="table-responsive">
+            <table  
+                id="imagetable" class="table table-striped table-sm" 
+                data-locale="en-US"
+                data-toggle="table"
+                data-search="true"
+                data-show-refresh="true"
+                data-show-toggle="true"
+                data-show-fullscreen="true"
+                data-show-columns="true"
+                data-show-columns-toggle-all="true"
+                data-show-export="true"
+                data-pagination="true"
+                data-side-pagination="server"
+                data-show-jump-to="true"
+                data-id-field="ID"
+                data-escape="false"
+                data-undefined-text=""
+                data-page-list="[10,25, 50, 100, all]"
+                data-url="get_artifacts"
+                data-height="650">
+                <thead>
+                    <tr>
+                        <th rowspan="2" data-field="annotated_image" data-formatter="ModalLinkFormatter" data-valign="middle">Image</th>
+                        <th rowspan="2" data-field="Species" data-valign="middle">Species</th>
+                        <th rowspan="2" data-field="Individual" data-valign="middle">Individual</th>
+                        <th rowspan="2" data-field="Sex" data-valign="middle">Sex</th>
+                        <th rowspan="2" data-field="Foot" data-valign="middle">Foot</th>
+                        <th rowspan="2" data-field="Rating" data-valign="middle">Rating</th>
+                        <th rowspan="2" data-field="CombinedComments" data-valign="middle">WildTrack Comments</th>
+                        <th colspan="2" data-halign="center">AI Predictions</th>
+                        <th colspan="4" data-halign="center">Recorder Information</th>
+                        <th rowspan="2" data-field="ID" data-visible="false">ID</th>
+                    </tr>
+                    <tr>
+                        <th data-valign="middle" data-field="Species_Inference">Species</th>
+                        <th data-valign="middle" data-field="Individual_Inference">Individual</th>
+                        <th data-field="TimeStamp" data-valign="middle">Date</th>
+                        <th data-field="Organization" data-valign="middle">Organization</th>
+                        <th data-field="Name" data-valign="middle">Name</th>
+                        <th data-field="UserComments" data-valign="middle">Comments</th>
+                         </tr>
+                </thead>
+            </table>
+        </div>
+
+        <div id="ModalDetails" class="modal fade ">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" >
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header text-center d-block">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Image Detail</h4>
+    
+                    </div>
+                    <div class="modal-body">
+                      <div id="ModalSummary">
+                        <div class="table-responsive">
+                            <table id="detailtable" class="table table-sm" 
+                              data-locale="en-US"
+                              data-toggle="table"
+                              data-escape="false">
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+    
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    var $detailtable = $('#detailtable');
+
+function ModalLinkFormatter(value, row, index) {
+    console.log(row)
+    //var linktext='<a href=\"javascript:void(0)\" onclick=\"launchModal(\''+JSON.stringify(row)+'\')\">'+value+'</a>'
+    var linktext='<a href=\"javascript:void(0)\" onclick=\"launchModal(\''+row["ID"]+'\')\">'+value+'</a>'
+    //var linktext='<a href=\"javascript:void(0)\" onclick=\"launchModal(\'5efce6c33d65356d5097593c\')\">'+value+'</a>'
+    //var linktext='<a href=\"javascript:void(0)\" onclick=\"launchModal(2)\">'+value+'</a>'
+    //console.log(linktext);
+    return linktext;
+}
+
+function launchModal(ID) {
+    detail_url='get_images/?artifactID='+ID
+
+    
+    $("#detailtable").bootstrapTable('destroy').bootstrapTable({
+    columns: [
+        {
+        title: 'Image',
+        field: 'image',
+        align: 'center',
+        valign: 'middle',
+        }, {
+        title: 'Annotated Image',
+        field: 'annotated_image',
+        align: 'center',
+        valign: 'middle'
+        }
+    ],
+    url:detail_url,
+    });
+
+    $("#ModalDetails").modal();
+    //console.log(current_sighting)
+    };
+
+
+    $("#imagetable").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
+        //console.log("editable:", editable);
+        console.log("field:", field);
+        console.log("row", row[field],row["ID"]);
+        console.log("oldValue", oldValue);
+        //console.log("el", $el);
+        var update_data={"ID":row["ID"],"Field":field,"Value":row[field]};
+        var update_url='/update_artifact_details';
+        //console.log(comment_data);
+        $.ajax({
+          type: 'POST',
+                url: update_url,
+                data: update_data,
+                success: function(response){
+                    console.log(response);
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+    });
+</script>
+{% endblock %} 

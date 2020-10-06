@@ -1,0 +1,67 @@
+{% include 'toolbar-admin.html' %}
+
+{% block header %}
+
+
+
+{% endblock %}
+
+{% block content %}  
+<div class="container-fluid">
+  <div class="table-responsive">
+      <table  
+          id="speciesTable" class="table table-striped table-sm" 
+          data-locale="en-US"
+          data-toggle="table"
+          data-search="true"
+          data-show-refresh="true"
+          data-show-toggle="true"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-show-export="true"
+          data-pagination="true"
+          data-side-pagination="server"
+          data-id-field="ID"
+          data-escape="false"
+          data-undefined-text=""
+          data-page-list="[10, 25, 50, 100, all]"
+          data-url="get_species"
+          data-height="650">
+          <thead>
+              <tr>
+                  <th data-field="SpeciesCommon" data-halign="center" data-valign="middle" data-editable="true" data-editable-type="text" data-editable-emptytext="Click to Add">Species (Common)</th>
+                  <th data-field="SpeciesInference" data-halign="center" data-valign="middle" data-editable="true" data-editable-type="text" data-editable-emptytext="Click to Add">Species (Inference)</th>
+                  <th data-field="Genus" data-halign="center" data-valign="middle" data-editable="true" data-editable-type="text" data-editable-emptytext="Click to Add">Genus</th>
+                  <th data-field="SpeciesLatin" data-halign="center" data-valign="middle" data-editable="true" data-editable-type="text" data-editable-emptytext="Click to Add">Species (Latin)</th>
+                  <th data-field="SubSpecies" data-halign="center" data-valign="middle" data-editable="true" data-editable-type="text" data-editable-emptytext="Click to Add">Sub-Species</th>
+                  <th data-field="ID" data-visible="false">ID</th>
+              </tr>
+          </thead>
+      </table>
+  </div>
+</div>
+<script>
+$("#speciesTable").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
+  //console.log("editable:", editable);
+  console.log("field:", field);
+  console.log("row", row[field], row["ID"]);
+  console.log("oldValue", oldValue);
+  //console.log("el", $el);
+  var update_url='/update_species_details';
+  var update_data={"ID":row["ID"], "Field":field, "Value":row[field]};
+  //console.log(comment_data);
+  $.ajax({
+    type: 'POST',
+          url: update_url,
+          data: update_data,
+          success: function(response){
+              console.log(response);
+          },
+          error: function(error){
+              console.log(error);
+          }
+      });
+});
+</script>
+{% endblock %} 

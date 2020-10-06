@@ -1,0 +1,780 @@
+&nbsp;
+<div class="row row-content align-items-center">
+    <div class="col">
+        <div class="card-deck">
+            <div class="card border-secondary">
+                <div class="card-header border-secondary">
+                    <h5>How WildTrackAI Works</h5>
+                </div>
+                <div class="card-body">
+                        <p class="card-text">WildTrackAI uses computer vision models to take images captured in the field, extract any footprints it finds, 
+                            and then use those footprints to infer key labels for that image. Animal Species and Sex are two examples of the labels the models can infer.
+                        </p>
+                        <p>The labels are stored along with other metadata obtained with the image and then used for further analysis
+                                that can combine both machine learning models and rules-based algorithms. For example, matching the AI-generated profile of a Jaguar to a database of known individual Jaguars enables Individual Identification.         
+                        </p>
+                        <p>In order to take on a new prediction task like species classification, models need  to be trained on images that are already labeled with the correct species. The more the number and variety of images available to a model for training, the better its prediction accuracy.  </p>
+                </div>
+            </div>
+            <div class="card border-success">
+                <div class="card-header border-success">
+                    <h5>How we define success</h5>
+                </div>
+                <div class="card-body"> 
+                    <p class="card-text">The success of this project is assessed according to progress against one or more of the following dimensions: </p>
+                    <ul >
+                        <li ><strong>Expanded Use Cases: </strong> Enabling new analyses (example: identification of species from a footprint image) . </li>
+                        <li ><strong>Improved accuracy: </strong> Meeting or exceeding prediction accuracy for analyses (example: individual identification) performed using the classic FIT technology. </li>
+                        <li ><strong>Improved tolerance to variability in image quality: </strong>Improving resilience of the models to lower quality images (example partial prints, bad lighting, some distortion..) 
+                        lowers the barrier for collection of images for analysis and model training.</li>
+                        <li ><strong>Adaptability to a variety of images and other media: </strong>Ensuring the system is flexible enough to be able to incorporate multiple types of tracking evidence. As an example, 
+                            the near term focus is on working with images of all four feet, but in the future the system could be extended to other secondary evidence like scat images and vocalizations, or biometrics such as shell or coat patterns. </li>
+                        <li ><strong>Time savings: </strong> Reducing time and effort involved with collection, submission, analysis and reporting of information on a known species as well as onboarding a new species. </li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>  
+    </div> 
+</div>
+
+
+
+<a id="Species_Class_Model"></a>
+<!-- -->
+
+    <div class="row row-content align-items-center">
+        <div class="col">
+            <div class="card-deck">
+
+                <div class="card border-info">
+                    <div class="card-header border-info">
+                        <h5>Current Model Performance</h5>
+                    </div>
+                    <div class="card-body"> 
+                        <p>Model last refreshed on {{last_model_refresh}}</p>
+                        <div class="row">
+                            <div class="col-12 col-sm-6">
+                                <h5>Species Classification</h5>
+                                <div class="table-responsive">
+                                    <table  
+                                        id="modelstatsspecies" class="table table-bordered table-sm table-hover" 
+                                        data-locale="en-US"
+                                        data-toggle="table"
+                                        data-url="get_model_stats?task=Species_Classification"
+                                        >
+                                        <thead class="table-info">
+                                            <tr>
+                                                <th  data-field="header" data-valign="middle"><strong>Species</strong></th>
+                                                <th  data-valign="middle" data-field="Train">Training</th>
+                                                <th  data-valign="middle" data-field="Test">Test</th>
+                                                <th  data-valign="middle" data-field="Field">Field</th>
+                                            </tr>
+
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+
+<a id="Individual_ID_Model"></a>
+                            <div class="col-12 col-sm-6">
+                                <h5>Individual Identification</h5>
+                                <div class="table-responsive">
+                                    <table  
+                                        id="modelstatsindividual" class="table table-bordered table-sm table-hover" 
+                                        data-locale="en-US"
+                                        data-toggle="table"
+                                        data-url="get_model_stats?task=Individual_Identification"
+                                        
+                                        >
+                                        <thead class="table-success">
+                                            <tr class=table-success>
+                                                <th data-field="header" data-valign="middle"><strong>Species</strong></th>
+                                                <th data-valign="middle" data-field="Train">Training</th>
+                                                <th data-valign="middle" data-field="Test">Test</th>
+                                                <th data-valign="middle" data-field="Field">Field</th>
+                                            </tr>
+
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-sm-6">
+                                <p><h5>Legend</h5>
+                                    <ul>
+                                        <li><strong>Train:</strong> Images that the models were trained on</li>
+                                        <li><strong>Test:</strong> Images that were used to test model performance. </li>
+                                        <ii><strong>Field:</strong> New Images uploaded via Epicollect or submitted directly to WildTrack.   </ii>
+                                    </ul>
+                                </p>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <p> Note that the original WildTrack data set that was used to test and train the models was 
+                                    comprised entirely of images that had the following characteristics:
+                                    <ul>
+                                        <li><strong>High Quality:</strong> rating =5</li>
+                                        <li><strong>Left Hind Foot:</strong> For all species except Otter which was Left Front</li>
+                                        <li><strong>Closely Cropped:</strong> Only the footprint appears in the frame (no ruler or other peripheral objects). </li>
+                                        <li><strong>Vertical Orientation:</strong> Almost entirely North-South orientation </li>
+                                    </ul> 
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <h5>Current Focus</h5>
+                                <p>The goal of this phase of the project is to narrow the gap in prediction accuracy between the highy curated initial imageset 
+                                    and that of images typically found in the field (varying quality, orientations, multiple feet, etc). Based on our analysis of results thus far, 
+                                    the next iteration of the system is focused in a few key areas. 
+                                </p>
+                                <ul>
+                                    <li><em>Augmentation of training image set to account for variation in field image orientation as well which foot (left or right) the image is of. </em></li>
+                                    <li><em>Using labels entered in Epicollect (example: species, foot) in the algorithm </em></li>
+                                    <li><em>Refining algorithm used to make Observation level predictions (i.e. for an entire set of images uploaded)</em></li>
+                                </ul>
+
+                            </div>
+                        </div>
+                        
+                    </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="row row-content align-items-center">
+        <div class="col">
+            <div class='card border-secondary'>
+                <div class="card-header border-secondary" role="tab" id="modeldetails">
+                    <h6>System Details - Current Model Flow</h6>
+                </div>
+                <div role="tabpanel" id="modelingdetails" data-parent="#modeldetails">
+                    <div class="card-body">
+                        <img src="static/images/model-current.jpg" >
+                        <p class="d-none d-sm-block">To get from a raw image captured in the field to a prediction, the system goes through the following steps: </p>
+                        <ol >
+                            <li ><strong>Footprint Detection: </strong>The first step is to identify the part of the image that is a footprint and <em>extract</em> it out for downstream analysis. 
+                                Note that the model can detect and <em>extract</em> multiple footprints in an image. Also, while the example picture shown here is one captured for FIT analysis (using the rulers), the system can work with other images as well , i.e. the rulers are not required . </li>
+                            <li ><strong>Species Classification: </strong>The footprints extracted fron the previous step are then analyzed to match them to one of a set of known species. As of now, the model has been trained on 11 species: <em>Amur Tiger, Bengal Tiger, Puma, Leopard, Cheetah, African Lion, African Elephant, Bongo, Lowland Tapir, Black Rhino and White Rhino</em>. The model prediction includes a confidence level. If the confidence is below a predefined threshold, the model returns <em>UNKNOWN</em> as the species. </li>
+                            <li ><strong>Individual Identification: </strong>Finally, the footprint is analyzed for matches against a database of known individuals for the species predicted in the previous step. These models are species-specific and just like the previous step, return the <em>most probable</em> match along with a confidence level. If the most probable match is below a predefined threshold, the model returns <em>UNKNOWN</em></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+
+
+    <div class="row row-content align-items-center">
+        <div class="col">
+            <div class='card border-secondary'>
+                <div class="card-header border-secondary" role="tab" id="modelfuture">
+                    <h6>System Details - Target Model Flow</h6>
+                </div>
+                <div role="tabpanel" id="modelingfuture" data-parent="#modelfuture">
+                    <div class="card-body">
+                        <img src="static/images/model-future.jpg" >
+                        <p class="d-none d-sm-block">In order to generate additional data points from the raw image as well as potentially improve the accuracy of Individual Identification, the intent is to add two more model prediction tasks outlined below: </p>
+                        <ol >
+                            <li >Footprint Detection</li>
+                            <li >Species Classification</li>
+                            <li >Individual Identification</li>
+                            <li ><strong>Foot Classification: </strong>Currently the individual Identification model only works on images of a single foot (Left Hind for most species, Left Front for Bears and Otters). Being able to accurately determine which foot an image is of would allow for easier capture of more raw images in the field as well as  potentially help improve the accuracy of the models</li>
+                            <li ><strong>Sex Classification: </strong>Determining sex of an individual animal is an important piece  of metadata to be generated. Training gender-specific models could also potentially help improve accuracy of Individual Identification. </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    
+    
+    <div class="row row-content align-items-center">
+        <div class="col-12">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5>System Architecture</h5>
+                </div>
+                <div class="card-body"> 
+                    <img src="static/images/system_architecture.jpg" class="align-items-center">
+                </div>
+            </div>
+        </div>
+    </div>  
+    
+    
+    
+<!-- -->
+
+<div class="row row-content align-items-center">
+    <div class="col">
+        <div class="card-deck">
+            <div class="card border-success">
+                <div class="card-header border-success">
+                    <h5>Species Classification Model Performance</h5>
+                </div>
+                <div class="card-body"> 
+                    <canvas id="speciesModelStatsChart" width="400" height="200"></canvas>
+                    <p id="caption">Accuracy statistics for species classification models.</p>
+            
+                    <script type=text/javascript>
+                        var options = {
+                            type: 'bar',
+                            data: {
+                                labels: [{% for species in species_model_stats %}
+                                        "{{species['header']}}",
+                                    {% endfor %}],
+                                datasets: [{
+                                    label: 'Training',
+                                    yAxisID: 'y-axis-1',
+                                    data: [{% for species in species_model_stats %}
+                                        "{{species['Train']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#4169E1'
+                                },{
+                                    label: 'Test',
+                                    yAxisID: 'y-axis-2',
+                                    data: [{% for species in species_model_stats %}
+                                        "{{species['Test']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#87CEEB'
+                                },{
+                                    label: 'Field',
+                                    yAxisID: 'y-axis-3',
+                                    data: [{% for species in species_model_stats %}
+                                        "{{species['Field']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#7B68EE'
+                                }]
+                            },
+                            labels: 'header',
+                            options: {
+                                  scales: {
+                                    yAxes: [{
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: true,
+                                        position: 'left',
+                                        id: 'y-axis-1',
+                                        ticks: { 
+                                            min: 0,
+                                            max: 100 
+                                        },
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'Accuracy'
+                                        }
+                                    }, {
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: false,
+                                        id: 'y-axis-2',
+                                        gridLines: {
+                                            drawOnChartArea: false
+                                        },
+                                        ticks: { 
+                                            min: 0,
+                                            max: 100
+                                        }
+            
+                                    }, {
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: false,
+                                        id: 'y-axis-3',
+                                        gridLines: {
+                                            drawOnChartArea: false
+                                        },
+                                        ticks: { 
+                                            min: 0,
+                                            max: 100
+                                        }
+            
+                                    }]
+                                },
+                            tooltips: {
+                                enabled: true
+                            },	
+                            animation: {
+                                /*onProgress: function () {
+                                    var chartInstance = this.chart,
+                                    ctx = chartInstance.ctx;
+                                    ctx.fillStyle = "gray";
+                                    ctx.font = "500 20px Helvetica";
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'bottom';
+                    
+                                    this.data.datasets.forEach((dataset) => {
+                                        for (var i = 0; i < dataset.data.length; i++) {
+                                            for(var key in dataset._meta)
+                                            {
+                                                var model = dataset._meta[key].data[i]._model;
+                                                ctx.fillText(dataset.data[i], model.x, model.y);
+                                            }
+                                        }
+                                    });
+                                }*/   
+                            }
+                            }
+                        }
+                        var ctx = document.getElementById("speciesModelStatsChart").getContext("2d")
+                        new Chart(ctx, options);
+                    </script>   
+                </div>
+            </div>
+        </div>  
+    </div> 
+</div>
+
+<!-- -->
+
+<div class="row row-content align-items-center">
+    <div class="col">
+        <div class="card-deck">
+            <div class="card border-success">
+                <div class="card-header border-success">
+                    <h5>Individual Identification Model Performance</h5>
+                </div>
+                <div class="card-body"> 
+                    <canvas id="modelStatsChart" width="400" height="200"></canvas>
+                    <p id="caption">Accuracy statistics for individual identification models.</p>
+            
+                    <script type=text/javascript>
+                        var options = {
+                            type: 'bar',
+                            data: {
+                                labels: [{% for species in individual_model_stats %}
+                                        "{{species['header']}}",
+                                    {% endfor %}],
+                                datasets: [{
+                                    label: 'Training',
+                                    yAxisID: 'y-axis-1',
+                                    data: [{% for species in individual_model_stats %}
+                                        "{{species['Train']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#8FBC8F'
+                                },{
+                                    label: 'Test',
+                                    yAxisID: 'y-axis-2',
+                                    data: [{% for species in individual_model_stats %}
+                                        "{{species['Test']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#2E8B57'
+                                },{
+                                    label: 'Field',
+                                    yAxisID: 'y-axis-3',
+                                    data: [{% for species in individual_model_stats %}
+                                        "{{species['Field']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#EEE8AA'
+                                }]
+                            },
+                            labels: 'header',
+                            options: {
+                                  scales: {
+                                    yAxes: [{
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: true,
+                                        position: 'left',
+                                        id: 'y-axis-1',
+                                        ticks: { 
+                                            min: 0,
+                                            max: 100 
+                                        },
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'Accuracy'
+                                        }
+                                    }, {
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: false,
+                                        id: 'y-axis-2',
+                                        gridLines: {
+                                            drawOnChartArea: false
+                                        },
+                                        ticks: { 
+                                            min: 0,
+                                            max: 100
+                                        }
+            
+                                    }, {
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: false,
+                                        id: 'y-axis-3',
+                                        gridLines: {
+                                            drawOnChartArea: false
+                                        },
+                                        ticks: { 
+                                            min: 0,
+                                            max: 100
+                                        }
+            
+                                    }]
+                                },
+                            tooltips: {
+                                enabled: true
+                            },	
+                            animation: {
+                                /*onProgress: function () {
+                                    var chartInstance = this.chart,
+                                    ctx = chartInstance.ctx;
+                                    ctx.fillStyle = "gray";
+                                    ctx.font = "500 20px Helvetica";
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'bottom';
+                    
+                                    this.data.datasets.forEach((dataset) => {
+                                        for (var i = 0; i < dataset.data.length; i++) {
+                                            for(var key in dataset._meta)
+                                            {
+                                                var model = dataset._meta[key].data[i]._model;
+                                                ctx.fillText(dataset.data[i], model.x, model.y);
+                                            }
+                                        }
+                                    });
+                                }*/   
+                            }
+                            }
+                        }
+                        var ctx = document.getElementById("modelStatsChart").getContext("2d")
+                        new Chart(ctx, options);
+                    </script>   
+                </div>
+            </div>
+        </div>  
+    </div> 
+</div>
+
+
+
+<!-- -->
+<a id="Species_Modeled"></a>
+<div class="row row-content align-items-center">
+    <div class="col">
+        <div class="card-deck">
+            <div class="card border-secondary">
+                <div class="card-header border-secondary">
+                    <h5>Count of Images by Species</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="speciesDistributionChart" width="400" height="200"></canvas>
+                    <p id="caption">Total number of images from each species used for model development.</p>
+            
+                    <script type=text/javascript>
+                        //Chart.defaults.global.responsive = false;
+                        var options = {
+                            type: 'bar',
+                            data: {
+                            labels: [{% for observation in species_data %}
+                                        "{{observation['species']}}",
+                                    {% endfor %}],
+                            datasets: [{
+                                    label: '# of Images',
+                                    data: [{% for observation in species_data %}
+                                        "{{observation['images']}}",
+                                    {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#3090C7'
+                                }]
+                            },
+                            options: {
+                                  scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            reverse: false,
+                                            min: 0
+                                        },
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'Count'
+                                        }
+                                    }]
+                                },
+                            tooltips: {
+                                enabled: true
+                            },	
+                            animation: {
+                                onProgress: function () {
+                                    var chartInstance = this.chart,
+                                    ctx = chartInstance.ctx;
+                                    ctx.fillStyle = "gray";
+                                    ctx.font = "500 20px Helvetica";
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'bottom';
+                    
+                                    this.data.datasets.forEach((dataset) => {
+                                        for (var i = 0; i < dataset.data.length; i++) {
+                                            for(var key in dataset._meta)
+                                            {
+                                                var model = dataset._meta[key].data[i]._model;
+                                                ctx.fillText(dataset.data[i], model.x, model.y);
+                                            }
+                                        }
+                                    });
+                                }   
+                            }
+                            }
+                        }
+                        var ctx = document.getElementById("speciesDistributionChart").getContext("2d")
+                        new Chart(ctx, options);
+                    </script> 
+                </div>
+            </div>
+            </div>
+        </div>  
+    </div> 
+</div>
+
+<!-- -->
+
+<div class="row row-content align-items-center">
+    <div class="col">
+        <div class="card-deck">
+            <div class="card border-success">
+                <div class="card-header border-success">
+                    <h5>Count of Individuals by Species</h5>
+                </div>
+                <div class="card-body"> 
+                    <canvas id="individualDistributionChart" width="400" height="200"></canvas>
+                    <p id="caption">Total number of known individuals in each species used for model development.</p>
+            
+                    <script type=text/javascript>
+                        //Chart.defaults.global.responsive = false;
+                        var options = {
+                            type: 'bar',
+                            data: {
+                                labels: [{% for observation in species_data %}
+                                        "{{observation['species']}}",
+                                    {% endfor %}],
+                                datasets: [{
+                                    label: '# of Individuals',
+                                    data: [{% for observation in species_data %}
+                                        "{{observation['individual']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#7BCCB5'
+                                }]
+                            },
+                            options: {
+                                  scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            reverse: false,
+                                            min: 0
+                                        },
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'Count'
+                                        }
+                                    }]
+                                },
+                            tooltips: {
+                                enabled: true
+                            },	
+                            animation: {
+                                onProgress: function () {
+                                    var chartInstance = this.chart,
+                                    ctx = chartInstance.ctx;
+                                    ctx.fillStyle = "gray";
+                                    ctx.font = "500 20px Helvetica";
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'bottom';
+                    
+                                    this.data.datasets.forEach((dataset) => {
+                                        for (var i = 0; i < dataset.data.length; i++) {
+                                            for(var key in dataset._meta)
+                                            {
+                                                var model = dataset._meta[key].data[i]._model;
+                                                ctx.fillText(dataset.data[i], model.x, model.y);
+                                            }
+                                        }
+                                    });
+                                }    
+                                }
+                            }
+                        }
+                        var ctx = document.getElementById("individualDistributionChart").getContext("2d")
+                        new Chart(ctx, options);
+                    </script>                                                          
+                </div>
+            </div>
+        </div>  
+    </div> 
+</div>
+
+
+
+<!-- -->
+
+<!---->
+
+<!-- 
+<div class="row row-content align-items-center">
+    <div class="col">
+        <div class="card-deck">
+            <div class="card border-secondary">
+                <div class="card-header border-secondary">
+                    <h5>Count of Foot by Species</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="footDistributionChart" width="400" height="200"></canvas>
+                    <p id="caption">Total number of each foot in each species.</p>
+            
+                    <script type=text/javascript>
+                        //Chart.defaults.global.responsive = false;
+                        var options = {
+                            type: 'bar',
+                            data: {
+                                labels: [{% for observation in foot_data %}
+                                        "{{observation['species']}}",
+                                    {% endfor %}],
+                                datasets: [{
+                                    label: '# of Left Hind',
+                                    yAxisID: 'y-axis-1',
+                                    data: [{% for observation in foot_data %}
+                                        "{{observation['Left Hind']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#99C68E'
+                                },{
+                                    label: '# of Right Hind',
+                                    yAxisID: 'y-axis-2',
+                                    data: [{% for observation in foot_data %}
+                                        "{{observation['Right Hind']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#ECE5B6'
+                                },{
+                                    label: '# of Left Front',
+                                    yAxisID: 'y-axis-3',
+                                    data: [{% for observation in foot_data %}
+                                        "{{observation['Left Front']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#493D26'
+                                },{
+                                    label: '# of Right Front',
+                                    yAxisID: 'y-axis-4',
+                                    data: [{% for observation in foot_data %}
+                                        "{{observation['Right Front']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#493D26'
+                                },{
+                                    label: '# of Unknown',
+                                    yAxisID: 'y-axis-5',
+                                    data: [{% for observation in foot_data %}
+                                        "{{observation['Unknown']}}",
+                                       {% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: '#493D26'
+                                }]
+                            },
+                            options: {
+                                  scales: {
+                                    yAxes: [{
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: true,
+                                        position: 'left',
+                                        id: 'y-axis-1',
+                                        ticks: { 
+                                            min: 0,
+                                            max: 160 
+                                        }
+                                    }, {
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: false,
+                                        id: 'y-axis-2',
+                                        gridLines: {
+                                            drawOnChartArea: false
+                                        },
+                                        ticks: { 
+                                            min: 0,
+                                            max: 160
+                                        }
+            
+                                    }, {
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: false,
+                                        id: 'y-axis-3',
+                                        gridLines: {
+                                            drawOnChartArea: false
+                                        },
+                                        ticks: { 
+                                            min: 0,
+                                            max: 160
+                                        }
+            
+                                    }, {
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: false,
+                                        id: 'y-axis-4',
+                                        gridLines: {
+                                            drawOnChartArea: false
+                                        },
+                                        ticks: { 
+                                            min: 0,
+                                            max: 160
+                                        }
+            
+                                    }, {
+                                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                                        display: false,
+                                        id: 'y-axis-5',
+                                        gridLines: {
+                                            drawOnChartArea: false
+                                        },
+                                        ticks: { 
+                                            min: 0,
+                                            max: 160
+                                        }
+            
+                                    }]
+                                },
+                            tooltips: {
+                                enabled: false
+                            },	
+                            animation: {
+                                onProgress: function () {
+                                    var chartInstance = this.chart,
+                                    ctx = chartInstance.ctx;
+                                    ctx.fillStyle = "gray";
+                                    ctx.font = "500 20px Helvetica";
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'bottom';
+                    
+                                    this.data.datasets.forEach((dataset) => {
+                                        for (var i = 0; i < dataset.data.length; i++) {
+                                            for(var key in dataset._meta)
+                                            {
+                                                var model = dataset._meta[key].data[i]._model;
+                                                ctx.fillText(dataset.data[i], model.x, model.y);
+                                            }
+                                        }
+                                    });
+                                }   
+                            }
+                            }
+                        }
+                        var ctx = document.getElementById("footDistributionChart").getContext("2d")
+                        new Chart(ctx, options);
+                    </script>                       
+                </div>
+            </div>
+        </div>  
+    </div> 
+</div>
+
+-->

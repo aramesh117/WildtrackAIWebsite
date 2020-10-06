@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block navitems %} 
+    <li class="nav-item {% if active=='home' %}active{% endif %}"><a class="nav-link" href="/admin"><span class="fa fa-paw fa-lg"></span> WildTrack AI</a></li>
+    <li class="nav-item {% if active=='observations' %}active{% endif %}"><a class="nav-link" href="/sightings_admin_page"><span class="fa fa-eye fa-lg"></span> Observations</a></li>
+    <li class="nav-item {% if active=='images' %}active{% endif %}"><a class="nav-link" href="/images_admin_page"><span class="fa fa-camera fa-lg"></span> Images</a></li>
+    <li class="nav-item {% if active=='model' %}active{% endif %}"><a class="nav-link" href="/model_admin"><span class="fa fa-code-branch fa-lg"></span> System Details</a></li>
+    <li class="nav-item {% if active=='users' %}active{% endif %}"><a class="nav-link" href="/species_admin_page"><span class="fa fa-sitemap fa-lg"></span> Species</a></li>
+    <li class="nav-item {% if active=='users' %}active{% endif %}"><a class="nav-link" href="/users_admin_page"><span class="fa fa-users fa-lg"></span> Users</a></li>
+    <li class="nav-item {% if active=='users' %}active{% endif %}"><a class="nav-link" href="/feedback_admin_page"><span class="fa fa-comments fa-lg"></span> Feedback</a></li>
+{% endblock %}

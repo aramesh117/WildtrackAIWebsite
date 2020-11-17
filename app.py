@@ -574,71 +574,75 @@ def index(sitetype="user"):
     global sex_accuracy,sex_accuracy_count,species_quality,individual_quality
 
 
-    if individual_count ==0:
-        expertlist=colsightings.distinct("ExpertLabels.AnimalName")
-        individual_count=len(expertlist)
 
-    if artifact_count == 0:
-        artifact_count = colartifacts.count_documents({"References.s3_image_name":{"$exists":1}})
-
-    
-    if trained_artifact_count==0:
-        trained_artifact_count=colartifacts.count_documents({"References.s3_image_name":{"$exists":1},"MachineLearning.MLType":"Train"})
+    expertlist=colsightings.distinct("ExpertLabels.AnimalName")
+    individual_count=len(expertlist)
 
  
-    if contributor_count==0:
-        contributor_count=len(colsightings.distinct("RecorderInfo.Name"))
+    artifact_count = colartifacts.count_documents({"References.s3_image_name":{"$exists":1}})
+
     
 
-    if all_species_count==0:
-        all_species_count=len(colsightings.distinct("UserLabels.Species"))
-    
+    trained_artifact_count=colartifacts.count_documents({"References.s3_image_name":{"$exists":1},"MachineLearning.MLType":"Train"})
 
-    if modeled_species_count==0:
-        modeled_species_count=colspecies.find({"Modeled":True}).count()
-    
+ 
+
+    contributor_count=len(colsightings.distinct("RecorderInfo.Name"))
+
+
+
+    all_species_count=len(colsightings.distinct("UserLabels.Species"))
+
+
+
+    modeled_species_count=colspecies.find({"Modeled":True}).count()
+
 
     cursor=colmodelsummaries.find().sort([("TimeStamp",-1)])
-    if species_accuracy==0 or individual_accuracy==0:
-        for summary in cursor:
-            speciesinfo=summary["Summary_Metrics"].get("Species_Classification","")
-            if speciesinfo!="":
-                correct=getcount(speciesinfo["All"],"Field","Correct")+getcount(speciesinfo["All"],"Test","Correct")
-                total=getcount(speciesinfo["All"],"Field","Total")+getcount(speciesinfo["All"],"Test","Total")
-                rating=getcount(speciesinfo["All"],"Field","Rating")+getcount(speciesinfo["All"],"Test","Rating")
-                if total>0:
-                    acc=correct/total
-                    qual=float(rating)/2.0
-                else:
-                    acc=0
-                    qual=0
+
+    for summary in cursor:
+        speciesinfo=summary["Summary_Metrics"].get("Species_Classification","")
+        #print(speciesinfo)
+        if speciesinfo!="":
+            correct=getcount(speciesinfo["All"],"Field","Correct")+getcount(speciesinfo["All"],"Test","Correct")
+            total=getcount(speciesinfo["All"],"Field","Total")+getcount(speciesinfo["All"],"Test","Total")
+            rating=getcount(speciesinfo["All"],"Field","Rating")+getcount(speciesinfo["All"],"Test","Rating")
+            #print("Spec Numbers:",correct,total)
+            if total>0:
+                acc=correct/total
+                qual=float(rating)/2.0
+            else:
+                acc=0
+                qual=0
 
 
-                species_accuracy=round(float(acc)*100)
-                species_accuracy_count=correct
-                species_quality=round(float(qual),2)
-            individualinfo=summary["Summary_Metrics"].get("Individual_Identification","")
-            if individualinfo!="":
-                correct=getcount(individualinfo["All"],"Field","Correct")+getcount(individualinfo["All"],"Test","Correct")
-                total=getcount(individualinfo["All"],"Field","Total")+getcount(individualinfo["All"],"Test","Total")
-                rating=getcount(individualinfo["All"],"Field","Rating")+getcount(individualinfo["All"],"Test","Rating")
-                if total>0:
-                    acc=correct/total
-                    qual=float(rating)/2.0
-                else:
-                    acc=0
-                    qual=0
+            species_accuracy=round(float(acc)*100)
+            species_accuracy_count=total
+            species_quality=round(float(qual),2)
+        individualinfo=summary["Summary_Metrics"].get("Individual_Identification","")
+        #print(individualinfo)
+        if individualinfo!="":
+            correct=getcount(individualinfo["All"],"Field","Correct")+getcount(individualinfo["All"],"Test","Correct")
+            total=getcount(individualinfo["All"],"Field","Total")+getcount(individualinfo["All"],"Test","Total")
+            rating=getcount(individualinfo["All"],"Field","Rating")+getcount(individualinfo["All"],"Test","Rating")
+            #print("Ind Numbers:",correct,total)
+            if total>0:
+                acc=correct/total
+                qual=float(rating)/2.0
+            else:
+                acc=0
+                qual=0
 
-                individual_accuracy=round(float(acc)*100)
-                individual_accuracy_count=correct
-                individual_quality=round(float(qual),2)
-            break
+            individual_accuracy=round(float(acc)*100)
+            individual_accuracy_count=total
+            individual_quality=round(float(qual),2)
+        break
 
 
 
     
-    if last_model_refresh=="":
-        last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+        
+    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
 
     if sitetype=="user":
         template="home-user.html"
@@ -680,11 +684,13 @@ def get_ratingscale():
 @app.route('/sightings_page')
 #@basic_auth.required
 def sightings_page():
+    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
     return render_template("sightings.html", last_model_refresh=last_model_refresh,active="observations",sitetype="user")
 
 @app.route('/sightings_admin_page')
 @basic_auth.required
 def sightings_admin_page():
+    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
     return render_template("sightings-admin.html", last_model_refresh=last_model_refresh, active="observations",sitetype="admin")
 
 def GetSightingDetail(sighting):
@@ -1045,11 +1051,13 @@ def get_details():
 @app.route('/images_page')
 #@basic_auth.required
 def images_page():
+    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
     return render_template("images.html", last_model_refresh=last_model_refresh, active='images',sitetype="user")
 
 @app.route('/images_admin_page')
 @basic_auth.required
 def images_admin_page():
+    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
     return render_template("images-admin.html", last_model_refresh=last_model_refresh, active='images',sitetype="admin")
 
 @app.route('/help')
@@ -1460,7 +1468,10 @@ def update_image_details():
         ID=data.get("ID","")
         details["ExpertLabels.Rating"]=data.get("rating","")
         details["Comments.ExpertComments"]=data.get("comments","")
-        details["MachineLearning.MLType"]=data.get("mltype","")
+        mltype=data.get("mltype","")
+        if mltype not in ["Train","Test"]:
+            mltype=""
+        details["MachineLearning.MLType"]=mltype
         details["MachineLearning.Reference"]=data.get("reference","")
 
         #print("Details",details)

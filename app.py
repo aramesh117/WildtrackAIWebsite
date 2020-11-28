@@ -23,7 +23,7 @@ basic_auth = BasicAuth(app)
 
 BLOB_BUCKET="test-wildtrackai"
 TEXT_BUCKET="test-wildtrackai"
-MONGO_DB='WildTrackAI-Test'
+MONGO_DB='wildtrack-db01'
 
 #Constants for Inference THRESHOLDS
 SPECIES_THRESHOLD=20

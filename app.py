@@ -1,3 +1,9 @@
+# Revisions
+# ************
+# 12/2020 - JTD - Update to point to WildTrack MongoDB instance and Azure Blob Store
+
+
+
 from flask import Flask,render_template,jsonify,request
 from flask_basicauth import BasicAuth
 import dns
@@ -13,17 +19,22 @@ from bson.objectid import ObjectId
 from collections import defaultdict
 import json
 from datetime import datetime
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
+
 
 app = Flask(__name__)
 app.config['BASIC_AUTH_USERNAME'] = 'wildtrackai'
 app.config['BASIC_AUTH_PASSWORD'] = 'WildTrackAI'
 basic_auth = BasicAuth(app)
 
+#JTD+5 12/2020
 #COnstants for metadata and object locations
-
-BLOB_BUCKET="test-wildtrackai"
-TEXT_BUCKET="test-wildtrackai"
+#BLOB_BUCKET="test-wildtrackai"
+#TEXT_BUCKET="test-wildtrackai"
 MONGO_DB='wildtrack-db01'
+AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
+AZURE_BLOB_CONTAINER = "wtimages01-prod01"
+AZURE_TEXT_CONTAINER = "wtimages-1-prod02"
 
 #Constants for Inference THRESHOLDS
 SPECIES_THRESHOLD=20
@@ -31,20 +42,23 @@ INDIVIDUAL_THRESHOLD=10
 USE_DETECTION_CLASSES=False
 FIELD_FACTOR=1.2 #Multiply fielf confidences by this factor
 
+#JTD+6 12/20 No longer needed
 # Constants for IBM COS values
-COS_ENDPOINT = "https://s3.eu.cloud-object-storage.appdomain.cloud" # Current list avaiable at https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints
-COS_API_KEY_ID = "F1lZCIsOoJtKsli1wJRa9L9r6Oz9K3jyuET26_KwGD1t" # eg "W00YixxxxxxxxxxMB-odB-2ySfTrFBIQQWanc--P3byk"
-COS_RESOURCE_CRN = "crn:v1:bluemix:public:cloud-object-storage:global:a/fd6505dcab2743a49886ba001521b883:b4a9771f-947a-4ed8-a47d-aa18426a43b2::" # eg "crn:v1:bluemix:public:cloud-object-storage:global:a/3bf0d9003xxxxxxxxxx1c3e97696b71c:d6f04d83-6c4f-4a62-a165-696756d63903::"
-COS_AUTH_ENDPOINT = "https://iam.cloud.ibm.com/identity/token"
+#COS_ENDPOINT = "https://s3.eu.cloud-object-storage.appdomain.cloud" # Current list avaiable at https://control.cloud-object-storage.cloud.ibm.com/v2/endpoints
+#COS_API_KEY_ID = "F1lZCIsOoJtKsli1wJRa9L9r6Oz9K3jyuET26_KwGD1t" # eg "W00YixxxxxxxxxxMB-odB-2ySfTrFBIQQWanc--P3byk"
+#COS_RESOURCE_CRN = "crn:v1:bluemix:public:cloud-object-storage:global:a/fd6505dcab2743a49886ba001521b883:b4a9771f-947a-4ed8-a47d-aa18426a43b2::" # eg "crn:v1:bluemix:public:cloud-object-storage:global:a/3bf0d9003xxxxxxxxxx1c3e97696b71c:d6f04d83-6c4f-4a62-a165-696756d63903::"
+#COS_AUTH_ENDPOINT = "https://iam.cloud.ibm.com/identity/token"
 # Create resource
-cos = ibm_boto3.resource("s3",
-    ibm_api_key_id=COS_API_KEY_ID,
-    ibm_service_instance_id=COS_RESOURCE_CRN,
-    ibm_auth_endpoint=COS_AUTH_ENDPOINT,
-    config=Config(signature_version="oauth"),
-    endpoint_url=COS_ENDPOINT
-)
+#cos = ibm_boto3.resource("s3",
+#    ibm_api_key_id=COS_API_KEY_ID,
+#    ibm_service_instance_id=COS_RESOURCE_CRN,
+#    ibm_auth_endpoint=COS_AUTH_ENDPOINT,
+#    config=Config(signature_version="oauth"),
+#    endpoint_url=COS_ENDPOINT
+#)
 
+
+#JTD+1 12/2020 Non longer needed
 client = pymongo.MongoClient("mongodb+srv://mongoadmin:BmmfKb1UkIFbRFl5@cluster0.ybns4.azure.mongodb.net/admin?retryWrites=true&w=majority")
 #client = pymongo.MongoClient("mongodb+srv://wildtrackdev:wildtrackai2020!@cluster0-abxwt.azure.mongodb.net/admin?retryWrites=true&w=majority")
 db = client[MONGO_DB]
@@ -117,6 +131,21 @@ def get_item(bucket_name, item_name):
     try:
         file = cos.Object(bucket_name, item_name).get()
         image_stream=file["Body"].read()
+        #print("File Contents: {0}".format(image_stream))
+    except ClientError as be:
+        print("CLIENT ERROR: {0}\n".format(be))
+    except Exception as e:
+        print("Unable to retrieve file contents: {0}".format(e))
+    return image_stream
+
+#JTD+8 12/2020 Get Azure Blob
+#Retrieve Azure Blob object
+def get_blob(item_name):
+    #print("Retrieving item from bucket: {0}, key: {1}".format(bucket_name, item_name))
+    try:
+        blob = BlobClient.from_connection_string(conn_str=AZURE_CONNECT_STRING, container_name=AZURE_BLOB_CONTAINER, blob_name=item_name)
+        blob_data = blob.download_blob()
+        image_stream=blob_data.readall()
         #print("File Contents: {0}".format(image_stream))
     except ClientError as be:
         print("CLIENT ERROR: {0}\n".format(be))
@@ -509,14 +538,14 @@ def get_individuals_by_species():
                     Sex="F"
                 elif Sex.lower()=="male":
                     Sex="M"
-
+        print(Species,AnimalName,Sex,Source)
         if Species and AnimalName and Sex and Source == "WildTrackAI-Train":
             animalID = (AnimalName,Sex)
             if Species in individuals_by_species:
                 individuals_by_species[Species] = {animalID}.union(individuals_by_species[Species])
             else:
                 individuals_by_species[Species] = {animalID}
-
+    print(individuals_by_species)
     return individuals_by_species  
 
 
@@ -530,7 +559,7 @@ def get_species_stats(jsonified=True):
     species_name_dict = get_individuals_by_species()
     if species_image_counts == {}:
         species_image_counts = get_species_image_count()
-
+    print("SPecies DIctionary: ",species_name_dict)
     for species in Species_Master:
         #species_name_dict.keys():
         individuals = males = females = unknowns = 0
@@ -943,7 +972,9 @@ def GetArtifactDetail(artifact):
         print("Issue getting metadata for artifact: ",artifact["_id"])
     else:
         #try:
-        image_stream=get_item(BLOB_BUCKET,filename)
+        #JTD+2 12/2020 Switch to Azure Blob Store
+        #image_stream=get_item(BLOB_BUCKET,filename)
+        image_stream=get_blob(filename)
         num_detections=len(artifact.get("Footprint_Detection",""))
         #blob["annotated_image"]="data:image/jpeg;base64,"+((base64.b64encode(image_stream)).decode('UTF-8'))
         #print("In: ",num_detections)
@@ -1286,7 +1317,9 @@ def GetImageDetails(artifact):
         filename=""
         if References != "":
             filename=References.get("s3_image_name","")
-            image_stream=get_item(BLOB_BUCKET,filename)
+            #JTD+2 12/2020 Switch to Azure BLOB store
+            #image_stream=get_item(BLOB_BUCKET,filename)
+            image_stream=get_blob(filename)
             num_detections=len(artifact.get("Footprint_Detection",""))
 
             blob["image"]="<img src=\"data:image/jpeg;base64,"+((base64.b64encode(image_stream)).decode('UTF-8')+

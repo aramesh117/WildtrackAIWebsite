@@ -1615,18 +1615,19 @@ def update_species_details():
 
     db.Species.update_one({'_id': ObjectId(ID)}, {'$set': {field: value}})
 
-@app.route('/add_species')
+@app.route('/add_species',methods=['POST'])
 def add_species():
     try:
         data=defaultdict()
         rqst=request.values
+        print("IN: ",rqst)
         data["SpeciesCommon"]=rqst.get("SpeciesCommon","")
         data["Genus"]=rqst.get("Genus","")
-        data["SpeciesLatin"]=data.get("SpeciesLatiin","")
-        data["SubSpecies"]=data.get("SubSpeciies","")
-        data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        result=add_record(colSpeciies,data)
-
+        data["SpeciesLatin"]=rqst.get("SpeciesLatin","")
+        data["SubSpecies"]=rqst.get("SubSpecies","")
+        #data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        result=add_record(db["Species"],data)
+        print(result)
     except:
         print("Error adding species information")
         status="Error"
@@ -1635,18 +1636,23 @@ def add_species():
             status="Error"
         else:
             status="OK"
+    
+    return json.dumps({'status':status})
+        
 
-@app.route('/add_user')
+@app.route('/add_user',methods=['POST'])
 def add_user():
     try:
         data=defaultdict()
         rqst=request.values
+        print("IN: ",rqst)
         data["Name"]=rqst.get("Name","")
-        data["Organization"]=rqst.get("Organizatoni","")
-        data["Email"]=data.get("Email","")
-        data["Description"]=data.get("Description","")
-        data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        result=add_record(DB["User"],data)
+        data["Organization"]=rqst.get("Organization","")
+        data["Email"]=rqst.get("Email","")
+        data["Description"]=rqst.get("Description","")
+        #data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        result=add_record(db["Users"],data)
+        print(result)
 
     except:
         print("Error adding user information")
@@ -1656,6 +1662,8 @@ def add_user():
             status="Error"
         else:
             status="OK"
+
+    return json.dumps({'status':status})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

@@ -20,7 +20,7 @@ from collections import defaultdict
 import json
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
-
+from DBUtils import *
 
 app = Flask(__name__)
 app.config['BASIC_AUTH_USERNAME'] = 'wildtrackai'
@@ -1615,5 +1615,27 @@ def update_species_details():
 
     db.Species.update_one({'_id': ObjectId(ID)}, {'$set': {field: value}})
 
+@app.route('/add_species')
+def add_species():
+    try:
+        data=defaultdict()
+        rqst=request.values
+        data["SpeciesCommon"]=rqst.get("SpeciesCommon","")
+        data["Genus"]=rqst.get("Genus","")
+        data["SpeciesLatin"]=data.get("SpeciesLatiin","")
+        data["SubSpecies"]=data.get("SubSpeciies","")
+        data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        result=add_record(data)
+
+    except:
+        print("Error adding species information")
+        status="Error"
+    else:
+        if result=="ERROR":
+            status="Error"
+        else:
+            status="OK"
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+

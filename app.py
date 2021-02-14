@@ -1625,10 +1625,31 @@ def add_species():
         data["SpeciesLatin"]=data.get("SpeciesLatiin","")
         data["SubSpecies"]=data.get("SubSpeciies","")
         data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        result=add_record(data)
+        result=add_record(colSpeciies,data)
 
     except:
         print("Error adding species information")
+        status="Error"
+    else:
+        if result=="ERROR":
+            status="Error"
+        else:
+            status="OK"
+
+@app.route('/add_user')
+def add_user():
+    try:
+        data=defaultdict()
+        rqst=request.values
+        data["Name"]=rqst.get("Name","")
+        data["Organization"]=rqst.get("Organizatoni","")
+        data["Email"]=data.get("Email","")
+        data["Description"]=data.get("Description","")
+        data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        result=add_record(DB["User"],data)
+
+    except:
+        print("Error adding user information")
         status="Error"
     else:
         if result=="ERROR":

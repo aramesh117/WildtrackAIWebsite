@@ -1640,6 +1640,15 @@ def add_species():
     return json.dumps({'status':status})
         
 
+@app.route('/delete_species',methods=['POST'])
+def delete_species():
+    data=request.values
+    ID=data.get('ID')
+    status=del_record(db['Species'],ID)
+    print(status)
+    return json.dumps({'status':status})
+
+
 @app.route('/add_user',methods=['POST'])
 def add_user():
     try:
@@ -1663,6 +1672,14 @@ def add_user():
         else:
             status="OK"
 
+    return json.dumps({'status':status})
+
+@app.route('/delete_user',methods=['POST'])
+def delete_user():
+    data=request.values
+    ID=data.get('ID')
+    status=del_record(db['Users'],ID)
+    print(status)
     return json.dumps({'status':status})
 
 if __name__ == '__main__':

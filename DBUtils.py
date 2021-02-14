@@ -57,4 +57,15 @@ def add_record(collection,data):
         return "ERROR"
     else:
         return "OK:"+str(id)
+
+def del_record(collection,ID):
+    if ID=="":
+        return 'Error - No ID'
+    else:
+        try:
+            collection.delete_one({"_id":ObjectId(ID)})
+        except:
+            return 'Error deleting record: '+str(ID)
+        else:
+            return 'OK'
     

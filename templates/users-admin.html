@@ -38,6 +38,7 @@
                   <th data-field="Organization" data-halign="center" data-valign="middle" data-editable="true" data-editable-type="text" data-editable-emptytext="Click to Add">Organization</th>
                   <th data-field="Email" data-halign="center" data-valign="middle" data-editable="true" data-editable-type="text" data-editable-emptytext="Click to Add">Email</th>
                   <th data-field="Description" data-halign="center" data-valign="middle" data-editable="true" data-editable-type="text" data-editable-emptytext="Click to Add">Description</th>
+                  <th data-field="Delete" data-halign="center" data-valign="middle"  data-formatter="operateFormatter" data-events="operateEvents">Delete</th>
                   <th data-field="ID" data-visible="false">ID</th>
               </tr>
           </thead>
@@ -98,6 +99,49 @@
 </div>
             
 <script>
+
+
+var $usertable = $('#userTable');
+
+
+function operateFormatter(value, row, index) {
+    return [
+      '<a class="remove" href="javascript:void(0)" title="Remove">',
+      '<i class="fa fa-trash"></i>',
+      '</a>'
+    ].join('')
+  };
+
+  window.operateEvents = {
+    'click .remove': function (e, value, row, index) {
+      console.log("row, index, ID", row,index,row["ID"]);
+      var data={"ID":row["ID"]};
+      var url='/delete_user';
+      //console.log(comment_data);
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: data,
+        success: function(response){
+          console.log(response);
+        },
+        error: function(error){
+          console.log(error);
+        }
+      });
+      $usertable.bootstrapTable('remove', {
+        field: 'ID',
+        values: [row.ID]
+      });
+      //location.reload(true);
+    }
+  };
+
+
+
+
+
+
 $("#userTable").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
   //console.log("editable:", editable);
   console.log("field:", field);

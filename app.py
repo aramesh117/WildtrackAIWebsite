@@ -1003,7 +1003,9 @@ def GetArtifactDetail(artifact):
             for i in range(num_detections):
                 
                 coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
-                shape=[(int(coordinates[0]),int(coordinates[1])),(int(coordinates[2]),int(coordinates[3]))]
+                #shape=[int(coordinates[0]),int(coordinates[1])),(int(coordinates[2]),int(coordinates[3]))]
+                shape=[float(coordinates[0]),float(coordinates[1]),float(coordinates[2]),float(coordinates[3])]
+                #print(coordinates)
                 #print("Shape: ",shape)
                 draw.rectangle(shape, fill =None, outline ="yellow",width=20) 
             
@@ -1332,7 +1334,7 @@ def GetImageDetails(artifact):
 
                 for i in range(num_detections):
                     coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
-                    shape=[(int(coordinates[0]),int(coordinates[1])),(int(coordinates[2]),int(coordinates[3]))]
+                    shape=[(float(coordinates[0]),float(coordinates[1])),(float(coordinates[2]),float(coordinates[3]))]
                     draw.rectangle(shape, fill =None, outline ="yellow",width=7) 
                 
                 byteIO = io.BytesIO()

@@ -34,7 +34,7 @@ basic_auth = BasicAuth(app)
 #parser = argparse.ArgumentParser()
 #parser.add_argument("--dev", help="Specify if this should connect to a dev environment",action="store_true")
 #args = parser.parse_args()
-wildtrack_env = os.environ['WILDTRACK_ENVIRONMENT']
+wildtrack_env = os.environ.get('WILDTRACK_ENVIRONMENT',"")
 
 
 

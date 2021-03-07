@@ -37,6 +37,7 @@ AZURE_BLOB_CONTAINER = "wtimages01-prod01"
 AZURE_TEXT_CONTAINER = "wtimages-1-prod02"
 
 #Constants for Inference THRESHOLDS
+DETECTION_THRESHOLD=70
 SPECIES_THRESHOLD=20
 INDIVIDUAL_THRESHOLD=10
 USE_DETECTION_CLASSES=False
@@ -538,7 +539,7 @@ def get_individuals_by_species():
                     Sex="F"
                 elif Sex.lower()=="male":
                     Sex="M"
-        print(Species,AnimalName,Sex,Source)
+        #print(Species,AnimalName,Sex,Source)
         if Species and AnimalName and Sex and Source == "WildTrackAI-Train":
             animalID = (AnimalName,Sex)
             if Species in individuals_by_species:
@@ -559,7 +560,7 @@ def get_species_stats(jsonified=True):
     species_name_dict = get_individuals_by_species()
     if species_image_counts == {}:
         species_image_counts = get_species_image_count()
-    print("SPecies DIctionary: ",species_name_dict)
+    #print("SPecies DIctionary: ",species_name_dict)
     for species in Species_Master:
         #species_name_dict.keys():
         individuals = males = females = unknowns = 0
@@ -991,28 +992,31 @@ def GetArtifactDetail(artifact):
             #    best_spec,best_ind=UpdateBestPredictions(best_spec,best_ind,Species_Inference,Individual_Inference)
                 #print("First Best: ",best_spec,best_ind)
 
-        num_detections=len(artifact.get("Footprint_Detection",""))
+        #num_detections=len(artifact.get("Footprint_Detection",""))
         #print("Detections: ",num_detections)
-        if num_detections>0:
-            individuals=""
-            species=""
-            img=Image.open(io.BytesIO(image_stream))
+        #if num_detections>0:
+        #    individuals=""
+        #    species=""
+        #    img=Image.open(io.BytesIO(image_stream))
 
-            draw = ImageDraw.Draw(img)
+        #    draw = ImageDraw.Draw(img)
 
-            for i in range(num_detections):
+        #    for i in range(num_detections):
                 
-                coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
-                #shape=[int(coordinates[0]),int(coordinates[1])),(int(coordinates[2]),int(coordinates[3]))]
-                shape=[float(coordinates[0]),float(coordinates[1]),float(coordinates[2]),float(coordinates[3])]
-                #print(coordinates)
-                #print("Shape: ",shape)
-                draw.rectangle(shape, fill =None, outline ="yellow",width=20) 
+        #        coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
+        #        confidence=float(artifact["Footprint_Detection"][i]["confidence"])
+                
+        #        if confidence>float(DETECTION_THRESHOLD):
+        #            shape=[float(coordinates[0]),float(coordinates[1]),float(coordinates[2]),float(coordinates[3])]
+        #            #print(coordinates)
+        #            #print("Shape: ",shape)
+        #            print(confidence,DETECTION_THRESHOLD)
+        #            draw.rectangle(shape, fill =None, outline ="yellow",width=20) 
             
-            byteIO = io.BytesIO()
+        #    byteIO = io.BytesIO()
 
-            img.save(byteIO, format='JPEG',quality=60)
-            byteArr = byteIO.getvalue()
+        #    img.save(byteIO, format='JPEG',quality=60)
+        #    byteArr = byteIO.getvalue()
 
             #blob["annotated_image"]="<img src=\"data:image/jpeg;base64,"+((base64.b64encode(byteArr)).decode('UTF-8')+
             #"\" class=\"img-fluid img-thumbnail\" alt=\"Annotated images\" loading=\"lazy\" width=\"260\" height=\"260\"")
@@ -1333,9 +1337,11 @@ def GetImageDetails(artifact):
                 draw = ImageDraw.Draw(img)
 
                 for i in range(num_detections):
-                    coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
-                    shape=[(float(coordinates[0]),float(coordinates[1])),(float(coordinates[2]),float(coordinates[3]))]
-                    draw.rectangle(shape, fill =None, outline ="yellow",width=7) 
+                    confidence=float(artifact["Footprint_Detection"][i]["confidence"])
+                    if confidence>float(DETECTION_THRESHOLD):
+                        coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
+                        shape=[(float(coordinates[0]),float(coordinates[1])),(float(coordinates[2]),float(coordinates[3]))]
+                        draw.rectangle(shape, fill =None, outline ="yellow",width=7) 
                 
                 byteIO = io.BytesIO()
                 img.save(byteIO, format='JPEG',quality=60)
@@ -1622,14 +1628,14 @@ def add_species():
     try:
         data=defaultdict()
         rqst=request.values
-        print("IN: ",rqst)
+        #print("IN: ",rqst)
         data["SpeciesCommon"]=rqst.get("SpeciesCommon","")
         data["Genus"]=rqst.get("Genus","")
         data["SpeciesLatin"]=rqst.get("SpeciesLatin","")
         data["SubSpecies"]=rqst.get("SubSpecies","")
         #data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         result=add_record(db["Species"],data)
-        print(result)
+        #print(result)
     except:
         print("Error adding species information")
         status="Error"
@@ -1647,7 +1653,7 @@ def delete_species():
     data=request.values
     ID=data.get('ID')
     status=del_record(db['Species'],ID)
-    print(status)
+    #print(status)
     return json.dumps({'status':status})
 
 
@@ -1656,14 +1662,14 @@ def add_user():
     try:
         data=defaultdict()
         rqst=request.values
-        print("IN: ",rqst)
+        #print("IN: ",rqst)
         data["Name"]=rqst.get("Name","")
         data["Organization"]=rqst.get("Organization","")
         data["Email"]=rqst.get("Email","")
         data["Description"]=rqst.get("Description","")
         #data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         result=add_record(db["Users"],data)
-        print(result)
+        #print(result)
 
     except:
         print("Error adding user information")
@@ -1681,7 +1687,7 @@ def delete_user():
     data=request.values
     ID=data.get('ID')
     status=del_record(db['Users'],ID)
-    print(status)
+    #print(status)
     return json.dumps({'status':status})
 
 if __name__ == '__main__':

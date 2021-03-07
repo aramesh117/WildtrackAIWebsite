@@ -30,9 +30,10 @@ app.config['BASIC_AUTH_PASSWORD'] = 'WildTrackAI'
 basic_auth = BasicAuth(app)
 
 # Allow for command line variables
-parser = argparse.ArgumentParser()
-parser.add_argument("--dev", help="Specify if this should connect to a dev environment",action="store_true")
-args = parser.parse_args()
+#parser = argparse.ArgumentParser()
+#parser.add_argument("--dev", help="Specify if this should connect to a dev environment",action="store_true")
+#args = parser.parse_args()
+wildtrack_env = os.environ['WILDTRACK_ENVIRONMENT']
 
 
 
@@ -44,7 +45,7 @@ args = parser.parse_args()
 #COnstants for metadata and object locations
 #BLOB_BUCKET="test-wildtrackai"
 #TEXT_BUCKET="test-wildtrackai"
-if args.dev:
+if wildtrack_env=="DEVELOPMENT":
     print("Connecting to Development")
     MONGO_DB='wildtrack-dev'
     AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'

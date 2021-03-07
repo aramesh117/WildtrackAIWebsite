@@ -48,3 +48,24 @@ def del_sighting(ID):
             colartifacts.delete_one({"_id":ObjectId(art_ID)})
         colsightings.delete_one({"_id":ObjectId(ID)})
         return 'OK'
+
+def add_record(collection,data):
+    try:
+        id = collection.insert_one(data).inserted_id
+    except:
+        print("Error adding record")
+        return "ERROR"
+    else:
+        return "OK:"+str(id)
+
+def del_record(collection,ID):
+    if ID=="":
+        return 'Error - No ID'
+    else:
+        try:
+            collection.delete_one({"_id":ObjectId(ID)})
+        except:
+            return 'Error deleting record: '+str(ID)
+        else:
+            return 'OK'
+    

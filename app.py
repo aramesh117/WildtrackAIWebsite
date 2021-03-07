@@ -20,23 +20,46 @@ from collections import defaultdict
 import json
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
+from DBUtils import *
+import argparse
 
-
+# Set up basic Authentication (Used for Admin Site)
 app = Flask(__name__)
 app.config['BASIC_AUTH_USERNAME'] = 'wildtrackai'
 app.config['BASIC_AUTH_PASSWORD'] = 'WildTrackAI'
 basic_auth = BasicAuth(app)
 
+# Allow for command line variables
+parser = argparse.ArgumentParser()
+parser.add_argument("--dev", help="Specify if this should connect to a dev environment",action="store_true")
+args = parser.parse_args()
+
+
+
+
+
+
+
 #JTD+5 12/2020
 #COnstants for metadata and object locations
 #BLOB_BUCKET="test-wildtrackai"
 #TEXT_BUCKET="test-wildtrackai"
-MONGO_DB='wildtrack-db01'
-AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
-AZURE_BLOB_CONTAINER = "wtimages01-prod01"
-AZURE_TEXT_CONTAINER = "wtimages-1-prod02"
+if args.dev:
+    print("Connecting to Development")
+    MONGO_DB='wildtrack-dev'
+    AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
+    AZURE_BLOB_CONTAINER = "wtimages01-dev01"
+    AZURE_TEXT_CONTAINER = "wtimages01-dev02"
+else:
+    print("Connecting to Production")
+    MONGO_DB='wildtrack-db01'
+    AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
+    AZURE_BLOB_CONTAINER = "wtimages01-prod01"
+    AZURE_TEXT_CONTAINER = "wtimages01-prod02"
+
 
 #Constants for Inference THRESHOLDS
+DETECTION_THRESHOLD=70
 SPECIES_THRESHOLD=20
 INDIVIDUAL_THRESHOLD=10
 USE_DETECTION_CLASSES=False
@@ -538,14 +561,14 @@ def get_individuals_by_species():
                     Sex="F"
                 elif Sex.lower()=="male":
                     Sex="M"
-        print(Species,AnimalName,Sex,Source)
+        #print(Species,AnimalName,Sex,Source)
         if Species and AnimalName and Sex and Source == "WildTrackAI-Train":
             animalID = (AnimalName,Sex)
             if Species in individuals_by_species:
                 individuals_by_species[Species] = {animalID}.union(individuals_by_species[Species])
             else:
                 individuals_by_species[Species] = {animalID}
-    print(individuals_by_species)
+    #print(individuals_by_species)
     return individuals_by_species  
 
 
@@ -559,17 +582,21 @@ def get_species_stats(jsonified=True):
     species_name_dict = get_individuals_by_species()
     if species_image_counts == {}:
         species_image_counts = get_species_image_count()
-    print("SPecies DIctionary: ",species_name_dict)
+    #print("SPecies DIctionary: ",species_name_dict)
     for species in Species_Master:
         #species_name_dict.keys():
         individuals = males = females = unknowns = 0
-        for individual in species_name_dict[species]:
-            individuals += 1
-            females  += (individual[1] == 'F')
-            males    += (individual[1] == 'M')
-            unknowns += (individual[1] == 'U')
-        image_count = species_image_counts[species] if species in species_image_counts.keys() else 0
-        species_count_list.append( {"species":species, "individual":individuals, "images":image_count, "females":females, "males":males, "unknown":unknowns} )
+        try:
+            for individual in species_name_dict[species]:
+                individuals += 1
+                females  += (individual[1] == 'F')
+                males    += (individual[1] == 'M')
+                unknowns += (individual[1] == 'U')
+            image_count = species_image_counts[species] if species in species_image_counts.keys() else 0
+            species_count_list.append( {"species":species, "individual":individuals, "images":image_count, "females":females, "males":males, "unknown":unknowns} )
+        except:
+            print("Error getting species stats for ",species)
+            continue
 
     #individual_count = 0
     #for species in species_count_list:
@@ -672,8 +699,11 @@ def index(sitetype="user"):
 
     
         
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
-
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
+    else:
+        last_model_refresh=""
     if sitetype=="user":
         template="home-user.html"
     else:
@@ -714,13 +744,22 @@ def get_ratingscale():
 @app.route('/sightings_page')
 #@basic_auth.required
 def sightings_page():
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
+    else:
+        last_model_refresh=""
     return render_template("sightings.html", last_model_refresh=last_model_refresh,active="observations",sitetype="user")
 
 @app.route('/sightings_admin_page')
 @basic_auth.required
 def sightings_admin_page():
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
+    else:
+        last_model_refresh=""
+    
     return render_template("sightings-admin.html", last_model_refresh=last_model_refresh, active="observations",sitetype="admin")
 
 def GetSightingDetail(sighting):
@@ -991,26 +1030,31 @@ def GetArtifactDetail(artifact):
             #    best_spec,best_ind=UpdateBestPredictions(best_spec,best_ind,Species_Inference,Individual_Inference)
                 #print("First Best: ",best_spec,best_ind)
 
-        num_detections=len(artifact.get("Footprint_Detection",""))
+        #num_detections=len(artifact.get("Footprint_Detection",""))
         #print("Detections: ",num_detections)
-        if num_detections>0:
-            individuals=""
-            species=""
-            img=Image.open(io.BytesIO(image_stream))
+        #if num_detections>0:
+        #    individuals=""
+        #    species=""
+        #    img=Image.open(io.BytesIO(image_stream))
 
-            draw = ImageDraw.Draw(img)
+        #    draw = ImageDraw.Draw(img)
 
-            for i in range(num_detections):
+        #    for i in range(num_detections):
                 
-                coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
-                shape=[(int(coordinates[0]),int(coordinates[1])),(int(coordinates[2]),int(coordinates[3]))]
-                #print("Shape: ",shape)
-                draw.rectangle(shape, fill =None, outline ="yellow",width=20) 
+        #        coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
+        #        confidence=float(artifact["Footprint_Detection"][i]["confidence"])
+                
+        #        if confidence>float(DETECTION_THRESHOLD):
+        #            shape=[float(coordinates[0]),float(coordinates[1]),float(coordinates[2]),float(coordinates[3])]
+        #            #print(coordinates)
+        #            #print("Shape: ",shape)
+        #            print(confidence,DETECTION_THRESHOLD)
+        #            draw.rectangle(shape, fill =None, outline ="yellow",width=20) 
             
-            byteIO = io.BytesIO()
+        #    byteIO = io.BytesIO()
 
-            img.save(byteIO, format='JPEG',quality=60)
-            byteArr = byteIO.getvalue()
+        #    img.save(byteIO, format='JPEG',quality=60)
+        #    byteArr = byteIO.getvalue()
 
             #blob["annotated_image"]="<img src=\"data:image/jpeg;base64,"+((base64.b64encode(byteArr)).decode('UTF-8')+
             #"\" class=\"img-fluid img-thumbnail\" alt=\"Annotated images\" loading=\"lazy\" width=\"260\" height=\"260\"")
@@ -1083,13 +1127,21 @@ def get_details():
 @app.route('/images_page')
 #@basic_auth.required
 def images_page():
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
+    else:
+        last_model_refresh=""
     return render_template("images.html", last_model_refresh=last_model_refresh, active='images',sitetype="user")
 
 @app.route('/images_admin_page')
 @basic_auth.required
 def images_admin_page():
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
+    else:
+        last_model_refresh=""
     return render_template("images-admin.html", last_model_refresh=last_model_refresh, active='images',sitetype="admin")
 
 @app.route('/help')
@@ -1105,8 +1157,11 @@ def model_page():
     global last_model_refresh
 
     if last_model_refresh=="":
-        last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
-
+            model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+            if model_summary is not None:
+                last_model_refresh=model_summary.get("TimeStamp","")
+            else:
+                last_model_refresh=""
 
     species_model_stats=get_model_stats(jsonified=False,task='Species_Classification')
     individual_model_stats=get_model_stats(jsonified=False,task='Individual_Identification')
@@ -1121,7 +1176,11 @@ def model_admin_page():
     global last_model_refresh
 
     if last_model_refresh=="":
-        last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+        model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+        if model_summary is not None:
+            last_model_refresh=model_summary.get("TimeStamp","")
+        else:
+            last_model_refresh=""
 
 
     species_model_stats=get_model_stats(jsonified=False,task='Species_Classification')
@@ -1331,9 +1390,11 @@ def GetImageDetails(artifact):
                 draw = ImageDraw.Draw(img)
 
                 for i in range(num_detections):
-                    coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
-                    shape=[(int(coordinates[0]),int(coordinates[1])),(int(coordinates[2]),int(coordinates[3]))]
-                    draw.rectangle(shape, fill =None, outline ="yellow",width=7) 
+                    confidence=float(artifact["Footprint_Detection"][i]["confidence"])
+                    if confidence>float(DETECTION_THRESHOLD):
+                        coordinates=artifact["Footprint_Detection"][i]["coordinates"].split(',')
+                        shape=[(float(coordinates[0]),float(coordinates[1])),(float(coordinates[2]),float(coordinates[3]))]
+                        draw.rectangle(shape, fill =None, outline ="yellow",width=7) 
                 
                 byteIO = io.BytesIO()
                 img.save(byteIO, format='JPEG',quality=60)
@@ -1615,5 +1676,73 @@ def update_species_details():
 
     db.Species.update_one({'_id': ObjectId(ID)}, {'$set': {field: value}})
 
+@app.route('/add_species',methods=['POST'])
+def add_species():
+    try:
+        data=defaultdict()
+        rqst=request.values
+        #print("IN: ",rqst)
+        data["SpeciesCommon"]=rqst.get("SpeciesCommon","")
+        data["Genus"]=rqst.get("Genus","")
+        data["SpeciesLatin"]=rqst.get("SpeciesLatin","")
+        data["SubSpecies"]=rqst.get("SubSpecies","")
+        #data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        result=add_record(db["Species"],data)
+        #print(result)
+    except:
+        print("Error adding species information")
+        status="Error"
+    else:
+        if result=="ERROR":
+            status="Error"
+        else:
+            status="OK"
+    
+    return json.dumps({'status':status})
+        
+
+@app.route('/delete_species',methods=['POST'])
+def delete_species():
+    data=request.values
+    ID=data.get('ID')
+    status=del_record(db['Species'],ID)
+    #print(status)
+    return json.dumps({'status':status})
+
+
+@app.route('/add_user',methods=['POST'])
+def add_user():
+    try:
+        data=defaultdict()
+        rqst=request.values
+        #print("IN: ",rqst)
+        data["Name"]=rqst.get("Name","")
+        data["Organization"]=rqst.get("Organization","")
+        data["Email"]=rqst.get("Email","")
+        data["Description"]=rqst.get("Description","")
+        #data["TimeStamp"]=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        result=add_record(db["Users"],data)
+        #print(result)
+
+    except:
+        print("Error adding user information")
+        status="Error"
+    else:
+        if result=="ERROR":
+            status="Error"
+        else:
+            status="OK"
+
+    return json.dumps({'status':status})
+
+@app.route('/delete_user',methods=['POST'])
+def delete_user():
+    data=request.values
+    ID=data.get('ID')
+    status=del_record(db['Users'],ID)
+    #print(status)
+    return json.dumps({'status':status})
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+

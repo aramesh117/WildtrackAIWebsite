@@ -21,31 +21,15 @@ import json
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
 from DBUtils import *
-import argparse
 import os
 
-# Set up basic Authentication (Used for Admin Site)
 app = Flask(__name__)
 app.config['BASIC_AUTH_USERNAME'] = 'wildtrackai'
 app.config['BASIC_AUTH_PASSWORD'] = 'WildTrackAI'
 basic_auth = BasicAuth(app)
 
-# Allow for command line variables
-#parser = argparse.ArgumentParser()
-#parser.add_argument("--dev", help="Specify if this should connect to a dev environment",action="store_true")
-#args = parser.parse_args()
 wildtrack_env = os.environ.get('WILDTRACK_ENVIRONMENT',"")
-
-
-
-
-
-
-
-#JTD+5 12/2020
-#COnstants for metadata and object locations
-#BLOB_BUCKET="test-wildtrackai"
-#TEXT_BUCKET="test-wildtrackai"
+print("env: ",wildtrack_env)
 if wildtrack_env=="DEVELOPMENT":
     print("Connecting to Development")
     MONGO_DB='wildtrack-dev'
@@ -59,6 +43,14 @@ else:
     AZURE_BLOB_CONTAINER = "wtimages01-prod01"
     AZURE_TEXT_CONTAINER = "wtimages01-prod02"
 
+#JTD+5 12/2020
+#COnstants for metadata and object locations
+#BLOB_BUCKET="test-wildtrackai"
+#TEXT_BUCKET="test-wildtrackai"
+#MONGO_DB='wildtrack-db01'
+#AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
+#AZURE_BLOB_CONTAINER = "wtimages01-prod01"
+#AZURE_TEXT_CONTAINER = "wtimages-1-prod02"
 
 #Constants for Inference THRESHOLDS
 DETECTION_THRESHOLD=70
@@ -570,7 +562,7 @@ def get_individuals_by_species():
                 individuals_by_species[Species] = {animalID}.union(individuals_by_species[Species])
             else:
                 individuals_by_species[Species] = {animalID}
-    #print(individuals_by_species)
+    print(individuals_by_species)
     return individuals_by_species  
 
 
@@ -599,7 +591,6 @@ def get_species_stats(jsonified=True):
         except:
             print("Error getting species stats for ",species)
             continue
-
     #individual_count = 0
     #for species in species_count_list:
     #    individual_count += species[1]
@@ -704,8 +695,7 @@ def index(sitetype="user"):
     model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
     if model_summary is not None:
         last_model_refresh=model_summary.get("TimeStamp","")
-    else:
-        last_model_refresh=""
+
     if sitetype=="user":
         template="home-user.html"
     else:
@@ -746,22 +736,19 @@ def get_ratingscale():
 @app.route('/sightings_page')
 #@basic_auth.required
 def sightings_page():
+    global last_model_refresh
     model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
     if model_summary is not None:
         last_model_refresh=model_summary.get("TimeStamp","")
-    else:
-        last_model_refresh=""
     return render_template("sightings.html", last_model_refresh=last_model_refresh,active="observations",sitetype="user")
 
 @app.route('/sightings_admin_page')
 @basic_auth.required
 def sightings_admin_page():
+    global last_model_refresh
     model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
     if model_summary is not None:
         last_model_refresh=model_summary.get("TimeStamp","")
-    else:
-        last_model_refresh=""
-    
     return render_template("sightings-admin.html", last_model_refresh=last_model_refresh, active="observations",sitetype="admin")
 
 def GetSightingDetail(sighting):
@@ -1129,21 +1116,19 @@ def get_details():
 @app.route('/images_page')
 #@basic_auth.required
 def images_page():
+    global last_model_refresh
     model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
     if model_summary is not None:
         last_model_refresh=model_summary.get("TimeStamp","")
-    else:
-        last_model_refresh=""
     return render_template("images.html", last_model_refresh=last_model_refresh, active='images',sitetype="user")
 
 @app.route('/images_admin_page')
 @basic_auth.required
 def images_admin_page():
+    global last_model_refresh
     model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
     if model_summary is not None:
         last_model_refresh=model_summary.get("TimeStamp","")
-    else:
-        last_model_refresh=""
     return render_template("images-admin.html", last_model_refresh=last_model_refresh, active='images',sitetype="admin")
 
 @app.route('/help')
@@ -1159,11 +1144,10 @@ def model_page():
     global last_model_refresh
 
     if last_model_refresh=="":
-            model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
-            if model_summary is not None:
-                last_model_refresh=model_summary.get("TimeStamp","")
-            else:
-                last_model_refresh=""
+        model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+        if model_summary is not None:
+            last_model_refresh=model_summary.get("TimeStamp","")
+
 
     species_model_stats=get_model_stats(jsonified=False,task='Species_Classification')
     individual_model_stats=get_model_stats(jsonified=False,task='Individual_Identification')
@@ -1181,8 +1165,6 @@ def model_admin_page():
         model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
         if model_summary is not None:
             last_model_refresh=model_summary.get("TimeStamp","")
-        else:
-            last_model_refresh=""
 
 
     species_model_stats=get_model_stats(jsonified=False,task='Species_Classification')

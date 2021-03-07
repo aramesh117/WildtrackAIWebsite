@@ -29,6 +29,7 @@ app.config['BASIC_AUTH_PASSWORD'] = 'WildTrackAI'
 basic_auth = BasicAuth(app)
 
 wildtrack_env = os.environ.get('WILDTRACK_ENVIRONMENT',"")
+print("env: ",wildtrack_env)
 if wildtrack_env=="DEVELOPMENT":
     print("Connecting to Development")
     MONGO_DB='wildtrack-dev'
@@ -579,14 +580,17 @@ def get_species_stats(jsonified=True):
     for species in Species_Master:
         #species_name_dict.keys():
         individuals = males = females = unknowns = 0
-        for individual in species_name_dict[species]:
-            individuals += 1
-            females  += (individual[1] == 'F')
-            males    += (individual[1] == 'M')
-            unknowns += (individual[1] == 'U')
-        image_count = species_image_counts[species] if species in species_image_counts.keys() else 0
-        species_count_list.append( {"species":species, "individual":individuals, "images":image_count, "females":females, "males":males, "unknown":unknowns} )
-
+        try:
+            for individual in species_name_dict[species]:
+                individuals += 1
+                females  += (individual[1] == 'F')
+                males    += (individual[1] == 'M')
+                unknowns += (individual[1] == 'U')
+            image_count = species_image_counts[species] if species in species_image_counts.keys() else 0
+            species_count_list.append( {"species":species, "individual":individuals, "images":image_count, "females":females, "males":males, "unknown":unknowns} )
+        except:
+            print("Error getting species stats for ",species)
+            continue
     #individual_count = 0
     #for species in species_count_list:
     #    individual_count += species[1]
@@ -688,7 +692,9 @@ def index(sitetype="user"):
 
     
         
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
 
     if sitetype=="user":
         template="home-user.html"
@@ -730,13 +736,17 @@ def get_ratingscale():
 @app.route('/sightings_page')
 #@basic_auth.required
 def sightings_page():
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
     return render_template("sightings.html", last_model_refresh=last_model_refresh,active="observations",sitetype="user")
 
 @app.route('/sightings_admin_page')
 @basic_auth.required
 def sightings_admin_page():
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
     return render_template("sightings-admin.html", last_model_refresh=last_model_refresh, active="observations",sitetype="admin")
 
 def GetSightingDetail(sighting):
@@ -1104,13 +1114,17 @@ def get_details():
 @app.route('/images_page')
 #@basic_auth.required
 def images_page():
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
     return render_template("images.html", last_model_refresh=last_model_refresh, active='images',sitetype="user")
 
 @app.route('/images_admin_page')
 @basic_auth.required
 def images_admin_page():
-    last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+    model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+    if model_summary is not None:
+        last_model_refresh=model_summary.get("TimeStamp","")
     return render_template("images-admin.html", last_model_refresh=last_model_refresh, active='images',sitetype="admin")
 
 @app.route('/help')
@@ -1126,7 +1140,9 @@ def model_page():
     global last_model_refresh
 
     if last_model_refresh=="":
-        last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+        model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+        if model_summary is not None:
+            last_model_refresh=model_summary.get("TimeStamp","")
 
 
     species_model_stats=get_model_stats(jsonified=False,task='Species_Classification')
@@ -1142,7 +1158,9 @@ def model_admin_page():
     global last_model_refresh
 
     if last_model_refresh=="":
-        last_model_refresh=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)]).get("TimeStamp","")
+        model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
+        if model_summary is not None:
+            last_model_refresh=model_summary.get("TimeStamp","")
 
 
     species_model_stats=get_model_stats(jsonified=False,task='Species_Classification')

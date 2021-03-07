@@ -736,6 +736,7 @@ def get_ratingscale():
 @app.route('/sightings_page')
 #@basic_auth.required
 def sightings_page():
+    global last_model_refresh
     model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
     if model_summary is not None:
         last_model_refresh=model_summary.get("TimeStamp","")
@@ -744,6 +745,7 @@ def sightings_page():
 @app.route('/sightings_admin_page')
 @basic_auth.required
 def sightings_admin_page():
+    global last_model_refresh
     model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
     if model_summary is not None:
         last_model_refresh=model_summary.get("TimeStamp","")
@@ -1114,6 +1116,7 @@ def get_details():
 @app.route('/images_page')
 #@basic_auth.required
 def images_page():
+    global last_model_refresh
     model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
     if model_summary is not None:
         last_model_refresh=model_summary.get("TimeStamp","")
@@ -1122,6 +1125,7 @@ def images_page():
 @app.route('/images_admin_page')
 @basic_auth.required
 def images_admin_page():
+    global last_model_refresh
     model_summary=colmodelsummaries.find_one({},projection=["TimeStamp"],sort=[("TimeStamp",-1)])
     if model_summary is not None:
         last_model_refresh=model_summary.get("TimeStamp","")

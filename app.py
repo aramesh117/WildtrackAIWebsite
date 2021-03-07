@@ -21,20 +21,35 @@ import json
 from datetime import datetime
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
 from DBUtils import *
+import os
 
 app = Flask(__name__)
 app.config['BASIC_AUTH_USERNAME'] = 'wildtrackai'
 app.config['BASIC_AUTH_PASSWORD'] = 'WildTrackAI'
 basic_auth = BasicAuth(app)
 
+wildtrack_env = os.environ.get('WILDTRACK_ENVIRONMENT',"")
+if wildtrack_env=="DEVELOPMENT":
+    print("Connecting to Development")
+    MONGO_DB='wildtrack-dev'
+    AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
+    AZURE_BLOB_CONTAINER = "wtimages01-dev01"
+    AZURE_TEXT_CONTAINER = "wtimages01-dev02"
+else:
+    print("Connecting to Production")
+    MONGO_DB='wildtrack-db01'
+    AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
+    AZURE_BLOB_CONTAINER = "wtimages01-prod01"
+    AZURE_TEXT_CONTAINER = "wtimages01-prod02"
+
 #JTD+5 12/2020
 #COnstants for metadata and object locations
 #BLOB_BUCKET="test-wildtrackai"
 #TEXT_BUCKET="test-wildtrackai"
-MONGO_DB='wildtrack-db01'
-AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
-AZURE_BLOB_CONTAINER = "wtimages01-prod01"
-AZURE_TEXT_CONTAINER = "wtimages-1-prod02"
+#MONGO_DB='wildtrack-db01'
+#AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
+#AZURE_BLOB_CONTAINER = "wtimages01-prod01"
+#AZURE_TEXT_CONTAINER = "wtimages-1-prod02"
 
 #Constants for Inference THRESHOLDS
 DETECTION_THRESHOLD=70

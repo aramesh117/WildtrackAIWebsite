@@ -15,7 +15,216 @@
 {% endblock %}
 
 
-{% block content %}  
+{% block content %} 
+
+<div class="container-fluid">
+  <div id="toolbar">
+      <button id="reportsighting" class="btn btn-secondary">Report a Sighting</button>
+  </div>
+
+  <div id="ReportSightingModal" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Report a Sighting</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    &times;
+                </button>
+            </div>
+            
+            
+             
+            <div class="modal-body">
+                <form id="NewSightingform" method="POST" enctype="multipart/form-data">
+                    <div class="form-group row">
+                        <label for="name" class="col-md-1 col-form-label">Name</label>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="newname" name="newname" placeholder="Name">         
+                        </div>
+                      
+                          <label for="email" class="col-md-1 col-form-label">Email</label>
+                    
+                          <div class="col-md-3">
+                              <input type="email" class="form-control" id="newemail" name="newemail" placeholder="Email">
+                              
+                          </div>  
+
+                          <label for="name" class="col-md-1 col-form-label">Organization</label>
+                    
+                          <div class="col-md-3">
+                              <input type="text" class="form-control" id="org" name="org" placeholder="Organization">
+                              
+                          </div>  
+                          
+                          
+                    
+
+
+                    </div>
+                    <div class= "form-group row">
+                      <label for = "date" class="col-md-1 col-form-label;\">Date</label> 
+                        <div class = "col-md-3">
+                          <input type="date" class="form-control" id="date" name="date"  placeholder="mm-dd-yyyy">
+                          <p id = "datePrompt"></p>
+                          </div>
+                        
+                      <label for="date" class="col-md-1 col-form-label">Location</label>
+                       <div class = "col-md-3">
+                           <input type="text" class="form-control" id="place" name="place" onblur= "validatePlace();" placeholder="City, State">
+                                       
+                        </div>
+                        <label for = "long/lat" class = col-md-1> Coordinates</label>
+                        <div class = col-md-3>
+                            <button onclick = "getLocation();"> get coordinates</button>
+                            <p id = "demo"></p>
+                        </div>
+
+                        
+                          
+                  </div>
+                      
+                  <div class = "form-group row">
+                      <label for = "species" class = "col-md-1"> Species</label> 
+                      <div class = "col-md-3">
+                        <form action = "action-page-php">
+                            <select name = "species">
+                                <option value = "Aardvark"> Aardvark</option>
+                                <option value = "Bear:Sloth"> Bear: Sloth</option>
+                                <option value = "Bongo: Eastern Mountain"> Bongo: Eastern Mountain</option>
+                                <option value = "Cat: Domestic"> Cat: Domestic</option>
+                                <option value = "Cheetah: Asiatic"> Cheetah: Asiatic</option>
+                                <option value = "Cheetah: Northeast African"> Cheetah: Northeast African</option>
+                                <option value = "Cheetah: Northwest African"> Cheetah: Northwest African</option>
+                                <option value = "Cheetah: Southeast African"> Cheetah: Southeast African</option>
+                                <option value = "Crow: Hooded">Crow: Hooded </option>
+                                <option value = "Dog: Domestic">Dog: Domestic </option>
+                                <option value = "Duiker: Common">Duiker: Common </option>
+                                <option value = "Elephant: African"> Elephant: African</option>
+                                <option value = "Fox: Red">Fox: Red </option>
+                                <option value = "Gazelle: Mountain">Gazelle: Mountain </option>
+                                <option value = "Giraffe: South African"> Giraffe: South African</option>
+                                <option value = "Hare: Scrub">Hare: Scrub </option>
+                                <option value = "Horse">Horse </option>
+                                <option value = "Human">Human </option>
+                                <option value = "Hyena: Spotted">Hyena: Spotted </option>
+                                <option value = "Impala: Black Faced">Impala: Black-faced </option>
+                                <option value = "Jackal: Black Backed">Jackal Black-backed </option>
+                                <option value = "Jackal: Golden">Jackal: Golden </option>
+                                <option value = "Jaguar">Jaguar </option>
+                                <option value = "Leopard: African"> Leopard: Indian</option>
+                                <option value = "Leopard: Indian">Leopard: Indian</option>
+                                <option value = "Leopard: Snow">Leopard: Snow </option>
+                                <option value = "Lion: African">Lion: African </option>
+                                <option value = "Mongoose: Stripe-necked">Mongoose: Stripe-necked </option>
+                                <option value = "Oryx">Oryx </option>
+                                <option value = "Ostrich"> Ostrich</option>
+                                <option value = "Otter: Eurasian">Otter: Eurasian </option>
+                                <option value = "Panda: Giant"> Panda: Giant</option>
+                                <option value = "Porcupine: Indian Crested"> Porcupine: Indian Crested</option>
+                                <option value = "Porcupine: South African"> Porcupine: South African</option>
+                                <option value = "Puma"> Puma</option>
+                                <option value = "Racoon">Racoon </option>
+                                <option value = "Rhino: Black">Rhino: Black </option>
+                                <option value = "Rhino: White">Rhino: White </option>
+                                <option value = "Springbuck"> Springbuck</option>
+                                <option value = "Squirrel: Grey">Squirrel: Grey </option>
+                                <option value = "Stone-curlew: Eurasian">Stone-curlew: Eurasian </option>
+                                <option value = "Tapir: Lowland">Tapir: Lowland </option>
+                                <option value = "Tiger: Amur">Tiger: Amur </option>
+                                <option value = "Tiger: Bengal">Tiger: Bengal </option>
+                                <option value = "Turtle: Box">Turtle: Box </option>
+                                <option value = "Turtle: Green">Turtle: Green </option>
+                                <option value = "Turtle: Loggerhead">Turtle: Loggerhead </option>
+                                <option value = "Wild dog: Indian (Dhole)">Wild dog: Indian (Dhole) </option>
+                                <option value = "Wolf: Arabian">Wolf: Arabian </option>
+                                <option value = "Wolf: Arabian">Wolf: Arabian </option>
+                                <option value = "Wolf: Indian">Wolf: Indian </option>
+                                
+                            </select>
+                        </form>
+                      </div>
+                  <label  for = "turtle" class="col-md-1 col-form-label">Individual</label>
+                          <div class= "col-md-3">
+                              <input type="text" class="form-control" id="turtlename" name="turtlename" placeholder="Name (if known)">
+                            
+                          </div> 
+
+                          <label for = "sex" class = "col-md-1"> Sex </label>
+                          <div class = "col-md-3">
+                              <form action = "action-page-php">
+                                  <select name = "gender">
+                                      <option value = "male"> Male</option>
+                                      <option value = "male"> Female</option>
+                                      <option value = "unknown"> Unknown</option>
+                                      
+                                  </select>
+                              </form>
+                          </div>
+
+                          
+
+                        </div>
+                        <div class = "form-group row">
+                        <label for ="time" class = "col-md-1"> Time</label>
+                          <div class = "col-md-3">
+                              <input type= "time" id = "time" class = "form-control" placeholder = "select time">
+                          </div>
+                        </div>
+
+
+                  
+                    
+                    
+                      
+                    <div class="form-group row">
+                        <label for="images" class="col-md-1 col-form-label">Images</label>
+                        <div class="col-md-4">
+                            <input type="file" class="form-control" id="images" name="images" accept="image/*" multiple="multiple" onchange="loadFile(event)">
+                            <output id="turtles">
+                          </div>  
+                        </div>
+                           
+                           
+                           
+                               
+
+                           
+                          
+                          
+                  
+
+                   
+
+                    <div class="form-group row">
+                        <label for="feedback" class="col-md-1 col-form-label"> Notes</label>
+                        <div class="col-md-10">
+                            <textarea class="form-control" id="notes" name="notes" 
+                            placeholder="Any additional notes about your observations?" 
+                            rows="6"></textarea>   
+                        </div>                       
+                    </div>
+                  </div>
+                    <div class="form-group row">
+                        <div class="offset-md-2 col-md-10">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary"  >
+                                Submit
+                            </button>
+                        </div>                      
+                    </div>
+                    <div class = "form-group-row">
+                        <div class = "col-md-2">
+                        <p id="save"></p> 
+                        </div> 
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
     <div class="container-fluid">
     
     <div class="table-responsive">
@@ -360,7 +569,38 @@
 		        });
         });
 
+        $('#NewSightingform').on('submit', function(e){
+    e.preventDefault();
+    var formdata=new FormData(this);
+    //data=$('#NewSightingform').serialize();
+    //File data
+  
+    $.ajax({
+        url:'/add_sighting',
+        type:'post',
+        processData: false,
+        contentType: false,
+        data:formdata,
+        success:function(){
+            console.log("OK");
+            $('#ReportSightingModal').modal('hide');
+            $('#NewSightingform').trigger("reset");
+            location.reload(true);
 
+            },
+        error:function(error){
+				        console.log(error);
+                        $('#ReportSightingModal').modal('hide');
+                        location.reload(true);
+			    }
+    });
+});
+
+        $("#reportsighting").click(function(){
+        $('#ReportSightingModal').modal('show')});
+
+
+        
 
 
       </script>

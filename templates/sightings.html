@@ -19,14 +19,14 @@
 
 <div class="container-fluid">
   <div id="toolbar">
-      <button id="reportsighting" class="btn btn-secondary">Report a Sighting</button>
+      <button id="reportsighting" class="btn btn-secondary">New Observation</button>
   </div>
 
   <div id="ReportSightingModal" class="modal fade">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Report a Sighting</h4>
+                <h4 class="modal-title">New Observation</h4>
                 <button type="button" class="close" data-dismiss="modal">
                     &times;
                 </button>
@@ -55,33 +55,29 @@
                               <input type="text" class="form-control" id="org" name="org" placeholder="Organization">
                               
                           </div>  
-                          
-                          
-                    
-
 
                     </div>
+
+
                     <div class= "form-group row">
                       <label for = "date" class="col-md-1 col-form-label;\">Date</label> 
                         <div class = "col-md-3">
                           <input type="date" class="form-control" id="date" name="date"  placeholder="mm-dd-yyyy">
                           <p id = "datePrompt"></p>
-                          </div>
+                        </div>
                         
                       <label for="date" class="col-md-1 col-form-label">Location</label>
                        <div class = "col-md-3">
                            <input type="text" class="form-control" id="place" name="place" onblur= "validatePlace();" placeholder="City, State">
                                        
-                        </div>
-                        <label for = "long/lat" class = col-md-1> Coordinates</label>
-                        <div class = col-md-3>
-                            <button onclick = "getLocation();"> get coordinates</button>
-                            <p id = "demo"></p>
-                        </div>
-
-                        
-                          
+                      </div>
+                      <label for = "long/lat" class = col-md-1> Coordinates</label>
+                      <div class = col-md-3>
+                          <button onclick = "getLocation();"> get coordinates</button>
+                          <p id = "demo"></p>
+                      </div>      
                   </div>
+
                       
                   <div class = "form-group row">
                       <label for = "species" class = "col-md-1"> Species</label> 
@@ -144,90 +140,85 @@
                         </form>
                       </div>
                   <label  for = "turtle" class="col-md-1 col-form-label">Individual</label>
-                          <div class= "col-md-3">
-                              <input type="text" class="form-control" id="turtlename" name="turtlename" placeholder="Name (if known)">
-                            
-                          </div> 
+                  <div class= "col-md-3">
+                      <input type="text" class="form-control" id="turtlename" name="turtlename" placeholder="Name (if known)">
+                    
+                  </div> 
 
-                          <label for = "sex" class = "col-md-1"> Sex </label>
-                          <div class = "col-md-3">
-                              <form action = "action-page-php">
-                                  <select name = "gender">
-                                      <option value = "male"> Male</option>
-                                      <option value = "male"> Female</option>
-                                      <option value = "unknown"> Unknown</option>
-                                      
-                                  </select>
-                              </form>
-                          </div>
+                  <label for = "sex" class = "col-md-1"> Sex </label>
+                  <div class = "col-md-3">
+                      <form action = "action-page-php">
+                          <select name = "gender">
+                              <option value = "male"> Male</option>
+                              <option value = "male"> Female</option>
+                              <option value = "unknown"> Unknown</option>
+                              
+                          </select>
+                      </form>
+                  </div>
+                </div>
 
-                          
-
-                        </div>
-                        <div class = "form-group row">
-                        <label for ="time" class = "col-md-1"> Time</label>
-                          <div class = "col-md-3">
-                              <input type= "time" id = "time" class = "form-control" placeholder = "select time">
-                          </div>
-                        </div>
+                
+                <div class = "form-group row">
+                  <label for ="time" class = "col-md-1"> Time</label>
+                  <div class = "col-md-3">
+                      <input type= "time" id = "time" class = "form-control" placeholder = "select time">
+                  </div>
+                </div>
 
 
                   
                     
                     
                       
-                    <div class="form-group row">
-                        <label for="images" class="col-md-1 col-form-label">Images</label>
-                        <div class="col-md-4">
-                            <input type="file" class="form-control" id="images" name="images" accept="image/*" multiple="multiple" onchange="loadFile(event)">
-                            <output id="turtles">
-                          </div>  
-                        </div>
+                <div class="form-group row">
+                    <label for="images" class="col-md-1 col-form-label">Images</label>
+                    <div class="col-md-4">
+                        <input type="file" class="form-control" id="images" name="images" accept="image/*" multiple="multiple" onchange="loadFile(event)">
+                        <output id="turtles">
+                    </div>  
+                </div>
                            
                            
-                           
-                               
 
-                           
-                          
-                          
-                  
 
-                   
+                <div class="form-group row">
+                    <label for="feedback" class="col-md-1 col-form-label"> Notes</label>
+                    <div class="col-md-10">
+                        <textarea class="form-control" id="notes" name="notes" 
+                        placeholder="Any additional notes about your observations?" 
+                        rows="6"></textarea>   
+                    </div>                       
+                </div>
 
-                    <div class="form-group row">
-                        <label for="feedback" class="col-md-1 col-form-label"> Notes</label>
-                        <div class="col-md-10">
-                            <textarea class="form-control" id="notes" name="notes" 
-                            placeholder="Any additional notes about your observations?" 
-                            rows="6"></textarea>   
-                        </div>                       
-                    </div>
-                  </div>
-                    <div class="form-group row">
-                        <div class="offset-md-2 col-md-10">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                Cancel
-                            </button>
-                            <button type="submit" class="btn btn-primary"  >
-                                Submit
-                            </button>
-                        </div>                      
-                    </div>
-                    <div class = "form-group-row">
-                        <div class = "col-md-2">
-                        <p id="save"></p> 
-                        </div> 
-                    </div>
-                </form>
+                <div class="form-group row">
+                    <div class="offset-md-2 col-md-10">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary"  >
+                            Submit
+                        </button>
+                    </div>                      
+                </div>
+
+                <div class = "form-group-row">
+                    <div class = "col-md-2">
+                    <p id="save"></p> 
+                    </div> 
+                </div>
+
+              </form>
+
             </div>
         </div>
     </div>
 </div>
+</div>
 
-    <div class="container-fluid">
+<div class="container-fluid">
     
-    <div class="table-responsive">
+  <div class="table-responsive">
     <table id="table" 
         data-search="true"
         data-show-refresh="true"
@@ -246,7 +237,7 @@
         data-url="get_sightings"
     >
     </table>
-    </div>
+  </div>
 
 
 
@@ -292,6 +283,7 @@
 
         </div>
     </div>
+  </div>
   </div>
         
 
@@ -569,14 +561,16 @@
 		        });
         });
 
-        $('#NewSightingform').on('submit', function(e){
+
+
+$('#NewSightingform').on('submit', function(e){
     e.preventDefault();
     var formdata=new FormData(this);
     //data=$('#NewSightingform').serialize();
     //File data
-  
+    console.log("Saving form..");
     $.ajax({
-        url:'/add_sighting',
+        url:'/add_observation',
         type:'post',
         processData: false,
         contentType: false,
@@ -596,10 +590,30 @@
     });
 });
 
-        $("#reportsighting").click(function(){
-        $('#ReportSightingModal').modal('show')});
+$("#reportsighting").click(function(){
+$('#ReportSightingModal').modal('show')});
 
+  var loadFile = function(event) {
+    var output = document.getElementById('turtles');
+    var files=event.target.files
+    var str=""
+    var div = document.createElement("div");
+    for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          //Only pics
+          if (!file.type.match('image'))
+            continue;
+            
+            str = str+"<img src='" + URL.createObjectURL(event.target.files[i]) + "' class='img-fluid img-thumbnail' style='width: 200px' />";
+            output.insertBefore(div, null);
+        }
+    div.innerHTML=str
+};
 
+function loading(){
+
+document.getElementById("save").innerHTML = "Saving, please wait ...";
+};
         
 
 

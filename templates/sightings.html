@@ -419,7 +419,7 @@
           //document.getElementById("artifacttable").url=detail_url;
           //document.getElementById("ModalSummary").innerHTML = ID;
           $("#ModalTable").modal();
-        }
+        };
               
 
         function initTable() {
@@ -491,7 +491,7 @@
               }
             ]
           });
-        }
+        };
 
 
         $(function() {
@@ -520,7 +520,7 @@
 		        });
           });
 
-            $("#currentsightingtable").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
+          $("#currentsightingtable").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
             console.log("field:", field);
             console.log("row", row[field],row["ID"]);
             console.log("oldValue", oldValue);
@@ -541,7 +541,7 @@
           });
 
 
-            $("#table").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
+          $("#table").on('editable-save.bs.table', function(editable, field, row, oldValue, $el) {
             console.log("field:", field);
             console.log("row", row[field],row["ID"]);
             console.log("oldValue", oldValue);
@@ -581,7 +581,7 @@ $('#NewSightingform').on('submit', function(e){
             $('#NewSightingform').trigger("reset");
             location.reload(true);
 
-            },
+        },
         error:function(error){
 				        console.log(error);
                         $('#ReportSightingModal').modal('hide');
@@ -617,5 +617,5 @@ document.getElementById("save").innerHTML = "Saving, please wait ...";
         
 
 
-      </script>
+</script>
 {% endblock %} 

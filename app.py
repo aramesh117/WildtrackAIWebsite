@@ -57,7 +57,7 @@ DETECTION_THRESHOLD=70
 SPECIES_THRESHOLD=20
 INDIVIDUAL_THRESHOLD=10
 USE_DETECTION_CLASSES=False
-FIELD_FACTOR=1.2 #Multiply fielf confidences by this factor
+FIELD_FACTOR=1 #Multiply fielf confidences by this factor
 
 #JTD+6 12/20 No longer needed
 # Constants for IBM COS values
@@ -887,6 +887,7 @@ def UpdateBestPredictions(species_current,individual_current,species_new,individ
     sconf_new=species_new.get("confidence",0)
     result=[species_current,individual_current]
     if float(sconf_new)>SPECIES_THRESHOLD and float(sconf_new)>float(sconf_current):
+        
         result=[species_new,individual_new]
     #print("Best result: ",result)
     return result
@@ -917,40 +918,41 @@ def GetArtifactPredictions(artifact,Species_Master):
             detected_species_prediction=""
             for i in range(num_detections):
                 #try:
-                    Species_Inference=artifact["Footprint_Detection"][i].get("Species_Inference","")
+                    #Species_Inference=artifact["Footprint_Detection"][i].get("Species_Inference","")
                     #DO not process if species inference is empty (implies not highest confidence print/ inference didn't run)
-                    if Species_Inference=="":
-                        continue
-                    if USE_DETECTION_CLASSES:
-                        detected_species_prediction=artifact["Footprint_Detection"][i].get("value","")
+                    #if Species_Inference=="":
+                    #    continue
+                    #if USE_DETECTION_CLASSES:
+                    #    detected_species_prediction=artifact["Footprint_Detection"][i].get("value","")
 
 
-                        if detected_species_prediction!="":
-                            #detected_species_confidence=artifact["Footprint_Detection"][i].get("confidence",0)
-                            detected_species_confidence=min(100,round(float(artifact["Footprint_Detection"][i].get("confidence",0))*FIELD_FACTOR,2))
-                            Detected_Individual_Inference=artifact["Footprint_Detection"][i].get("Detected_Individual_Inference","")
-                            if Detected_Individual_Inference=="":
-                                #print("Its null!")
-                                Detected_Individual_Inference={"value":"","confidence":0}
-                            best_spec,best_ind=UpdateBestPredictions(best_spec,best_ind,{"value":detected_species_prediction,"confidence":detected_species_confidence},
-                            Detected_Individual_Inference)
+                    #    if detected_species_prediction!="":
+                    #        #detected_species_confidence=artifact["Footprint_Detection"][i].get("confidence",0)
+                    #        detected_species_confidence=min(100,round(float(artifact["Footprint_Detection"][i].get("confidence",0))*FIELD_FACTOR,2))
+                    #        Detected_Individual_Inference=artifact["Footprint_Detection"][i].get("Detected_Individual_Inference","")
+                    #        if Detected_Individual_Inference=="":
+                    #            #print("Its null!")
+                    #            Detected_Individual_Inference={"value":"","confidence":0}
+                    #        best_spec,best_ind=UpdateBestPredictions(best_spec,best_ind,{"value":detected_species_prediction,"confidence":detected_species_confidence},
+                    #        Detected_Individual_Inference)#
 
-                            #print("Detected & Classified: ",best_spec,best_ind)
-
+                    #        #print("Detected & Classified: ",best_spec,best_ind)
+                    detection_confidence=float(artifact["Footprint_Detection"][i].get("confidence",0))
+                    
                     Species_Inference=artifact["Footprint_Detection"][i].get("Species_Inference","")
-                    if Species_Inference!="":
+                    if Species_Inference =="":
+                                Species_Inference={"value":"","confidence":0}
+                    if detection_confidence>DETECTION_THRESHOLD and Species_Inference!="":
                         #print(Species_Inference)
                         cropped_species_inference=Species_Inference.get("value","")
-                        if cropped_species_inference==detected_species_prediction:
-                            multiplier=FIELD_FACTOR*ENSEMBLE_FACTOR
-                        else:
-                            multiplier=FIELD_FACTOR
+                        multiplier=FIELD_FACTOR
                         species_conf=min(100,round(float(Species_Inference.get("confidence",0))*multiplier,2))
                         Species_Inference={"value":cropped_species_inference,"confidence":species_conf}
                         if Species_Inference != "":
                             Individual_Inference=artifact["Footprint_Detection"][i].get("Individual_Inference","")
-                            if Individual_Inference != "":
-                                best_spec,best_ind=UpdateBestPredictions(best_spec,best_ind,Species_Inference,Individual_Inference)  
+                            if Individual_Inference =="":
+                                Individual_Inference={"value":"","confidence":0}
+                            best_spec,best_ind=UpdateBestPredictions(best_spec,best_ind,Species_Inference,Individual_Inference)  
                             #print("Detected: ",best_spec,best_ind)
                 #except:
                     #print("Issue retrieving detection info for atrifact: ")

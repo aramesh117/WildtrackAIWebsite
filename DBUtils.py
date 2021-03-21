@@ -69,3 +69,96 @@ def del_record(collection,ID):
         else:
             return 'OK'
     
+
+def create_observation(data,files,source="wildtrack-website"):
+    print(data)
+
+
+    #feedback["Images"]=data.get("images","")
+    #instance=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    update=data.get("date","")
+    if update=="":
+        instance=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    else:
+        instance=update+"T00:00:00Z"
+    #print(formdate,instance)
+    #forminstance=formdate.strftime("%Y-%m-%dT%H:%M:%SZ")
+    #print(forminstance)
+    #print("Adding feedback",request.values,feedback)
+    # Define MongoDB Sighting collection schema
+    sighting_schema = {
+        'RecorderInfo': {
+            'Name': data.get("newname",""),
+            'Email': data.get("newemail",""),
+            'Organization': data.get("org","")},
+        'TimeStamp': {
+            'created_at': instance,
+            'uploaded_at': instance},
+        'Location': {
+            'LocationName': '',
+            'GPS': {}},
+        'UserLabels': {
+            'Species': data.get("species",""),
+            'AnimalName': data.get("animalname",""),
+            'AnimalID': data.get("animalid",""),
+            'Sex': data.get("sex","")},
+        'References': {
+            'Source': source},
+        'Comments': {
+            'UserComments': data.get("notes","")}
+        }
+
+
+
+    # Remove null schema values and post record to MongoDB
+    cleanSightingSchema = cleanNullTerms(sighting_schema)
+    sighting_id = db.Sightings.insert_one(cleanSightingSchema).inserted_id
+    
+    uploaded_files=request.files.getlist('images')
+    print(len(uploaded_files))
+    for image in uploaded_files:
+        #uploaded_file.save(uploaded_file.filename)
+        print(image.filename)
+# Establish IBM COS client and write directly to S3
+        id = uuid.uuid1().hex
+        image_name = "WILDTRACKDIRECT/"+id+".jpg"
+        #cos.meta.client.upload_fileobj(image,
+        #                            Bucket = BLOB_BUCKET,
+        #                            Key = image_name)
+        #data=open(image, "rb")
+        img = BytesIO(image.read())        
+        data = Image.open(img, 'r')        
+        buf = BytesIO()        
+        data.save(buf, 'png')   
+        container_client.upload_blob(name=image_name, data=buf.getvalue())
+        artifact_schema = {
+        'ArtifactType': data.get("artifacttype","footprints"),
+        'MediaType': data.get("mediatype",'photo'),
+        'Sighting' : sighting_id,
+        'TimeStamp': {
+            'created_at': '',
+            'uploaded_at': ''},
+        'References': {
+            'Source': source,
+            's3_image_name': image_name},
+        'UserLabells': {
+            'Foot':data.get ("foot",""),
+            'FootprintID': data.get("footprintid","")}
+        }
+
+        cleanArtifactSchema = cleanNullTerms(artifact_schema)
+        artifact_id = db.Artifacts.insert_one(cleanArtifactSchema)
+        print("Artifact: ",artifact_id)
+
+
+
+
+
+        #print(feedbackid)
+    #except:
+    #    print("Error adding feedback")
+    #    status="Error"
+    #else:
+    status="OK "+str(sighting_id)
+    return status
+    

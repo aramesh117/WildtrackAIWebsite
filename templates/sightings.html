@@ -18,9 +18,9 @@
 {% block content %} 
 
 <div class="container-fluid">
-  <div id="toolbar">
+      <!--  <div id="toolbar">
       <button id="reportsighting" class="btn btn-secondary">New Observation</button>
-  </div>
+  </div> -->
 
   <div id="ReportSightingModal" class="modal fade">
     <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -139,9 +139,9 @@
                             </select>
                         </form>
                       </div>
-                  <label  for = "turtle" class="col-md-1 col-form-label">Individual</label>
+                  <label  for = "individual" class="col-md-1 col-form-label">Individual</label>
                   <div class= "col-md-3">
-                      <input type="text" class="form-control" id="turtlename" name="turtlename" placeholder="Name (if known)">
+                      <input type="text" class="form-control" id="individual" name="individual" placeholder="Name (if known)">
                     
                   </div> 
 
@@ -175,7 +175,7 @@
                     <label for="images" class="col-md-1 col-form-label">Images</label>
                     <div class="col-md-4">
                         <input type="file" class="form-control" id="images" name="images" accept="image/*" multiple="multiple" onchange="loadFile(event)">
-                        <output id="turtles">
+                        <output id="prints">
                     </div>  
                 </div>
                            
@@ -183,7 +183,7 @@
 
 
                 <div class="form-group row">
-                    <label for="feedback" class="col-md-1 col-form-label"> Notes</label>
+                    <label for="notes" class="col-md-1 col-form-label"> Notes</label>
                     <div class="col-md-10">
                         <textarea class="form-control" id="notes" name="notes" 
                         placeholder="Any additional notes about your observations?" 
@@ -203,9 +203,9 @@
                 </div>
 
                 <div class = "form-group-row">
-                    <div class = "col-md-2">
-                    <p id="save"></p> 
-                    </div> 
+                  <div class = "col-md-2">
+                  <p id="save"></p> 
+                  </div> 
                 </div>
 
               </form>
@@ -562,13 +562,17 @@
         });
 
 
+$("#reportsighting").click(function(){
+        $('#ReportSightingModal').modal('show')});
+
 
 $('#NewSightingform').on('submit', function(e){
+    console.log("Saving form..");
     e.preventDefault();
     var formdata=new FormData(this);
     //data=$('#NewSightingform').serialize();
     //File data
-    console.log("Saving form..");
+    
     $.ajax({
         url:'/add_observation',
         type:'post',
@@ -590,24 +594,23 @@ $('#NewSightingform').on('submit', function(e){
     });
 });
 
-$("#reportsighting").click(function(){
-$('#ReportSightingModal').modal('show')});
 
-  var loadFile = function(event) {
-    var output = document.getElementById('turtles');
-    var files=event.target.files
-    var str=""
-    var div = document.createElement("div");
-    for (var i = 0; i < files.length; i++) {
-          var file = files[i];
-          //Only pics
-          if (!file.type.match('image'))
-            continue;
-            
-            str = str+"<img src='" + URL.createObjectURL(event.target.files[i]) + "' class='img-fluid img-thumbnail' style='width: 200px' />";
-            output.insertBefore(div, null);
-        }
-    div.innerHTML=str
+
+var loadFile = function(event) {
+  var output = document.getElementById('prints');
+  var files=event.target.files
+  var str=""
+  var div = document.createElement("div");
+  for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        //Only pics
+        if (!file.type.match('image'))
+          continue;
+          
+          str = str+"<img src='" + URL.createObjectURL(event.target.files[i]) + "' class='img-fluid img-thumbnail' style='width: 200px' />";
+          output.insertBefore(div, null);
+      }
+  div.innerHTML=str
 };
 
 function loading(){

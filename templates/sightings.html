@@ -1,4 +1,4 @@
-{% include 'toolbar-user.html' %}
+{% extends 'toolbar-user.html' %}
 
 {% block header %}
 <header class="jumbotron">
@@ -18,9 +18,9 @@
 {% block content %} 
 
 <div class="container-fluid">
-      <!--  <div id="toolbar">
+  <div id="toolbar">
       <button id="reportsighting" class="btn btn-secondary">New Observation</button>
-  </div> -->
+  </div>
 
   <div id="ReportSightingModal" class="modal fade">
     <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -66,22 +66,24 @@
                           <p id = "datePrompt"></p>
                         </div>
                         
-                      <label for="date" class="col-md-1 col-form-label">Location</label>
+                      <label for="place" class="col-md-1 col-form-label">Location</label>
                        <div class = "col-md-3">
                            <input type="text" class="form-control" id="place" name="place" onblur= "validatePlace();" placeholder="City, State">
                                        
                       </div>
-                      <label for = "long/lat" class = col-md-1> Coordinates</label>
+                     <label for = "long/lat" class = col-md-1> Coordinates</label>
                       <div class = col-md-3>
                           <button onclick = "getLocation();"> get coordinates</button>
                           <p id = "demo"></p>
-                      </div>      
+                      </div>    
                   </div>
 
                       
                   <div class = "form-group row">
+<!--
                       <label for = "species" class = "col-md-1"> Species</label> 
-                      <div class = "col-md-3">
+         
+                        <div class = "col-md-3">
                         <form action = "action-page-php">
                             <select name = "species">
                                 <option value = "Aardvark"> Aardvark</option>
@@ -137,14 +139,17 @@
                                 <option value = "Wolf: Indian">Wolf: Indian </option>
                                 
                             </select>
-                        </form>
+                        </form> 
+
                       </div>
+
+-->
                   <label  for = "individual" class="col-md-1 col-form-label">Individual</label>
                   <div class= "col-md-3">
                       <input type="text" class="form-control" id="individual" name="individual" placeholder="Name (if known)">
                     
                   </div> 
-
+<!--
                   <label for = "sex" class = "col-md-1"> Sex </label>
                   <div class = "col-md-3">
                       <form action = "action-page-php">
@@ -156,8 +161,10 @@
                           </select>
                       </form>
                   </div>
+-->
                 </div>
-
+                           
+                         
                 
                 <div class = "form-group row">
                   <label for ="time" class = "col-md-1"> Time</label>
@@ -168,7 +175,8 @@
 
 
                   
-                    
+                                               
+   
                     
                       
                 <div class="form-group row">
@@ -178,7 +186,6 @@
                         <output id="prints">
                     </div>  
                 </div>
-                           
                            
 
 
@@ -285,9 +292,10 @@
     </div>
   </div>
   </div>
-        
+  {% endblock %} 
 
-    <script>
+
+  {% block script %} 
         var $table = $('#table');
         var $artifactTable=$('#artifactTable');
         var $currentsightingtable=$('#currentsightingtable');
@@ -566,9 +574,9 @@ $("#reportsighting").click(function(){
         $('#ReportSightingModal').modal('show')});
 
 
-$('#NewSightingform').on('submit', function(e){
-    console.log("Saving form..");
+$('#NewSightingform').on('submit',function(e){
     e.preventDefault();
+    console.log("Saving form..");
     var formdata=new FormData(this);
     //data=$('#NewSightingform').serialize();
     //File data
@@ -618,7 +626,4 @@ function loading(){
 document.getElementById("save").innerHTML = "Saving, please wait ...";
 };
         
-
-
-</script>
 {% endblock %} 

@@ -39,7 +39,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script> -->
     <!--<script src="Chart.min.js"></script>-->
+
+
+{% block header %}{% endblock %}
+
 </head>
+
 <body>
     
 
@@ -68,7 +73,6 @@
 
     </nav>
 
-    {% block header %}{% endblock %}
 
     <div id="feedbackModal" class="modal fade">
         <div class="modal-dialog modal-dialog-centered modal-md">
@@ -172,6 +176,7 @@
     });
 });
 
+{% block script %} {% endblock %}
 
 </script>
     

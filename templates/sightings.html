@@ -18,15 +18,9 @@
 {% block content %} 
 
 <div class="container-fluid">
-<<<<<<< HEAD
   <div id="toolbar">
       <button id="reportsighting" class="btn btn-secondary">New Observation</button>
   </div>
-=======
-      <!--  <div id="toolbar">
-      <button id="reportsighting" class="btn btn-secondary">New Observation</button>
-  </div> -->
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
 
   <div id="ReportSightingModal" class="modal fade">
     <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -72,41 +66,24 @@
                           <p id = "datePrompt"></p>
                         </div>
                         
-<<<<<<< HEAD
                       <label for="place" class="col-md-1 col-form-label">Location</label>
-=======
-                      <label for="date" class="col-md-1 col-form-label">Location</label>
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
                        <div class = "col-md-3">
                            <input type="text" class="form-control" id="place" name="place" onblur= "validatePlace();" placeholder="City, State">
                                        
                       </div>
-<<<<<<< HEAD
                      <label for = "long/lat" class = col-md-1> Coordinates</label>
                       <div class = col-md-3>
                           <button onclick = "getLocation();"> get coordinates</button>
                           <p id = "demo"></p>
                       </div>    
-=======
-                      <label for = "long/lat" class = col-md-1> Coordinates</label>
-                      <div class = col-md-3>
-                          <button onclick = "getLocation();"> get coordinates</button>
-                          <p id = "demo"></p>
-                      </div>      
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
                   </div>
 
                       
                   <div class = "form-group row">
-<<<<<<< HEAD
 <!--
                       <label for = "species" class = "col-md-1"> Species</label> 
          
                         <div class = "col-md-3">
-=======
-                      <label for = "species" class = "col-md-1"> Species</label> 
-                      <div class = "col-md-3">
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
                         <form action = "action-page-php">
                             <select name = "species">
                                 <option value = "Aardvark"> Aardvark</option>
@@ -162,26 +139,17 @@
                                 <option value = "Wolf: Indian">Wolf: Indian </option>
                                 
                             </select>
-<<<<<<< HEAD
                         </form> 
 
                       </div>
 
 -->
-=======
-                        </form>
-                      </div>
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
                   <label  for = "individual" class="col-md-1 col-form-label">Individual</label>
                   <div class= "col-md-3">
                       <input type="text" class="form-control" id="individual" name="individual" placeholder="Name (if known)">
                     
                   </div> 
-<<<<<<< HEAD
 <!--
-=======
-
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
                   <label for = "sex" class = "col-md-1"> Sex </label>
                   <div class = "col-md-3">
                       <form action = "action-page-php">
@@ -193,15 +161,10 @@
                           </select>
                       </form>
                   </div>
-<<<<<<< HEAD
 -->
                 </div>
                            
                          
-=======
-                </div>
-
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
                 
                 <div class = "form-group row">
                   <label for ="time" class = "col-md-1"> Time</label>
@@ -212,12 +175,8 @@
 
 
                   
-<<<<<<< HEAD
                                                
    
-=======
-                    
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
                     
                       
                 <div class="form-group row">
@@ -228,10 +187,6 @@
                     </div>  
                 </div>
                            
-<<<<<<< HEAD
-=======
-                           
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
 
 
                 <div class="form-group row">
@@ -337,12 +292,8 @@
     </div>
   </div>
   </div>
-<<<<<<< HEAD
   {% endblock %} 
 
-=======
-        
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
 
   {% block script %} 
         var $table = $('#table');
@@ -622,62 +573,6 @@
 $("#reportsighting").click(function(){
         $('#ReportSightingModal').modal('show')});
 
-<<<<<<< HEAD
-=======
-
-$('#NewSightingform').on('submit', function(e){
-    console.log("Saving form..");
-    e.preventDefault();
-    var formdata=new FormData(this);
-    //data=$('#NewSightingform').serialize();
-    //File data
-    
-    $.ajax({
-        url:'/add_observation',
-        type:'post',
-        processData: false,
-        contentType: false,
-        data:formdata,
-        success:function(){
-            console.log("OK");
-            $('#ReportSightingModal').modal('hide');
-            $('#NewSightingform').trigger("reset");
-            location.reload(true);
-
-        },
-        error:function(error){
-				        console.log(error);
-                        $('#ReportSightingModal').modal('hide');
-                        location.reload(true);
-			    }
-    });
-});
-
-
-
-var loadFile = function(event) {
-  var output = document.getElementById('prints');
-  var files=event.target.files
-  var str=""
-  var div = document.createElement("div");
-  for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        //Only pics
-        if (!file.type.match('image'))
-          continue;
-          
-          str = str+"<img src='" + URL.createObjectURL(event.target.files[i]) + "' class='img-fluid img-thumbnail' style='width: 200px' />";
-          output.insertBefore(div, null);
-      }
-  div.innerHTML=str
-};
-
-function loading(){
-
-document.getElementById("save").innerHTML = "Saving, please wait ...";
-};
-        
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
 
 $('#NewSightingform').on('submit',function(e){
     e.preventDefault();
@@ -707,7 +602,6 @@ $('#NewSightingform').on('submit',function(e){
     });
 });
 
-<<<<<<< HEAD
 
 
 var loadFile = function(event) {
@@ -732,7 +626,4 @@ function loading(){
 document.getElementById("save").innerHTML = "Saving, please wait ...";
 };
         
-=======
-</script>
->>>>>>> 4f5e98d401d0e681bbcf35ac9e865a68a88747ab
 {% endblock %} 

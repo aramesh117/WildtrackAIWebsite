@@ -19,7 +19,7 @@
 
 <div class="container-fluid">
   <div id="toolbar">
-      <button id="reportsighting" class="btn btn-secondary">New Observation</button>
+      <button id="reportsighting" class="btn btn-secondary" onclick = "getLocation();">New Observation</button>
   </div>
 
   <div id="ReportSightingModal" class="modal fade">
@@ -71,20 +71,20 @@
                            <input type="text" class="form-control" id="place" name="place" onblur= "validatePlace();" placeholder="City, State">
                                        
                       </div>
-                     <label for = "long/lat" class = col-md-1> Coordinates</label>
+                     <label for = "long/lat" class = col-md-1> Coordinates: </label>
                       <div class = col-md-3>
-                          <button onclick = "getLocation();"> get coordinates</button>
-                          <p id = "demo"></p>
+                          
+                          <p id = "demo">loading coordinates....</p>
                       </div>    
                   </div>
 
                       
                   <div class = "form-group row">
-<!--
+
                       <label for = "species" class = "col-md-1"> Species</label> 
          
                         <div class = "col-md-3">
-                        <form action = "action-page-php">
+                        
                             <select name = "species">
                                 <option value = "Aardvark"> Aardvark</option>
                                 <option value = "Bear:Sloth"> Bear: Sloth</option>
@@ -139,29 +139,30 @@
                                 <option value = "Wolf: Indian">Wolf: Indian </option>
                                 
                             </select>
-                        </form> 
+                        
 
                       </div>
 
--->
+
                   <label  for = "individual" class="col-md-1 col-form-label">Individual</label>
                   <div class= "col-md-3">
                       <input type="text" class="form-control" id="individual" name="individual" placeholder="Name (if known)">
                     
                   </div> 
-<!--
+
+
                   <label for = "sex" class = "col-md-1"> Sex </label>
                   <div class = "col-md-3">
-                      <form action = "action-page-php">
-                          <select name = "gender">
-                              <option value = "male"> Male</option>
-                              <option value = "male"> Female</option>
-                              <option value = "unknown"> Unknown</option>
-                              
-                          </select>
-                      </form>
+                      <input type = "radio" id = "male" name = "gender" value = "male">
+                      <label for = "male">male</label>
+                      <input type = "radio" id = "female" name = "gender" value = "female">
+                      <label for = "female">female</label>
+                      <input type = "radio" id = "unknown" name = "gender" value = "unknown">
+                      <label for = "unknown">unknown</label>
+                         
+                 
                   </div>
--->
+
                 </div>
                            
                          
@@ -625,5 +626,21 @@ function loading(){
 
 document.getElementById("save").innerHTML = "Saving, please wait ...";
 };
-        
+    
+
+function getLocation(){
+  var x = document.getElementById ("demo");
+
+  if (navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(showPosition);
+  } else{
+      x.innerHTML = "Geolocation is not supported by this browser";
+  }
+};
+
+function showPosition(position){
+var x = document.getElementById ("demo");
+x.innerHTML = "Latitude:" + position.coords.latitude +
+"<br> Longitude:" + position.coords.longitude;
+};
 {% endblock %} 

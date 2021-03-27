@@ -3,29 +3,29 @@
 # 12/2020 - JTD - Update to point to WildTrack MongoDB instance and Azure Blob Store
 
 
-from flask import Flask, render_template, jsonify, request
-from flask_basicauth import BasicAuth
-import dns
-import pymongo
-import pprint
-import ibm_boto3
-from ibm_botocore.client import Config, ClientError
-import io
 import base64
-import PIL
-from PIL import Image, ImageDraw
-from bson.objectid import ObjectId
-from collections import defaultdict
+import io
 import json
-from datetime import datetime
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
-from DBUtils import *
 import os
+from collections import defaultdict
+from datetime import datetime
+
+import msal
+from PIL import Image, ImageDraw
+from flask import Flask, render_template, session, request, redirect, url_for, jsonify
+from flask_basicauth import BasicAuth
+from ibm_botocore.client import ClientError
+
+from DBUtils import *
+from app_config import AzureAuthentication
+from flask_session import Session  # https://pythonhosted.org/Flask-Session
 
 app = Flask(__name__)
 app.config['BASIC_AUTH_USERNAME'] = 'wildtrackai'
 app.config['BASIC_AUTH_PASSWORD'] = 'WildTrackAI'
+app.config.from_object(AzureAuthentication())
 basic_auth = BasicAuth(app)
+Session(app)
 
 wildtrack_env = os.environ.get('WILDTRACK_ENVIRONMENT', "")
 print("env: ", wildtrack_env)
@@ -85,7 +85,8 @@ colfeedback = db["Feedback"]
 colmodelsummaries = db["ModelSummaries"]
 colspecies = db["Species"]
 
-cursor = colspecies.find({"Modeled": True}, {"SpeciesCommon": 1, "_id": 0}, sort=[("SpeciesCommon", 1)])
+cursor = colspecies.find({"Modeled": True}, {"SpeciesCommon": 1, "_id": 0},
+                         sort=[("SpeciesCommon", 1)])
 species_list = []
 for item in cursor:
     label = item.get("SpeciesCommon", "")
@@ -118,13 +119,30 @@ current_sightings_search = ""
 Alldocs = []
 species_image_counts = {}
 Species_Master = sorted(
-    ["Tiger: Amur", "Tiger: Bengal", "Cheetah: South East African", "Leopard: African", "Puma", "Jaguar",
+    ["Tiger: Amur", "Tiger: Bengal", "Cheetah: South East African", "Leopard: African", "Puma",
+     "Jaguar",
      "Lion: African", "Elephant: African",
-     "Rhino: Black", "Rhino: White", "Tapir: Lowland", "Bongo: Eastern Mountain", "Otter: Eurasian"])
+     "Rhino: Black", "Rhino: White", "Tapir: Lowland", "Bongo: Eastern Mountain",
+     "Otter: Eurasian"])
 
 
 # Species_Master=sorted(["Amur Tiger","Bengal Tiger","Cheetah","Leopard","Puma","Jaguar","African lion","African elephant",
 # "Black Rhino","White Rhino","Lowland Tapir","Bongo","Otter"])
+
+@app.before_request
+def check_azure_login():
+    login_valid = 'user' in session
+    if (request.endpoint and
+            not login_valid and
+            request.endpoint != 'static' and
+            not getattr(app.view_functions[request.endpoint], 'is_public', False)):
+        return redirect(url_for("login"))
+
+
+def public_endpoint(function):
+    function.is_public = True
+    return function
+
 
 def ClearCache():
     global sightings, artifacts, Images, current_sightings_search, Alldocs
@@ -163,7 +181,8 @@ def get_item(bucket_name, item_name):
 def get_blob(item_name):
     # print("Retrieving item from bucket: {0}, key: {1}".format(bucket_name, item_name))
     try:
-        blob = BlobClient.from_connection_string(conn_str=AZURE_CONNECT_STRING, container_name=AZURE_BLOB_CONTAINER,
+        blob = BlobClient.from_connection_string(conn_str=AZURE_CONNECT_STRING,
+                                                 container_name=AZURE_BLOB_CONTAINER,
                                                  blob_name=item_name)
         blob_data = blob.download_blob()
         image_stream = blob_data.readall()
@@ -185,7 +204,8 @@ def Get_Inference(value, confidence, threshold):
     return result
 
 
-def skiplimit(dbcoll, query_string={}, project_string={}, page_size=10, offset=0, sort=None, order=""):
+def skiplimit(dbcoll, query_string={}, project_string={}, page_size=10, offset=0, sort=None,
+              order=""):
     if order == "desc":
         order = -1
     else:
@@ -193,7 +213,8 @@ def skiplimit(dbcoll, query_string={}, project_string={}, page_size=10, offset=0
     if sort:
         sort_str = [(sort, order)]
         # print("Sort String: ",sort_str)
-        cursor = dbcoll.find(query_string, project_string).skip(offset).limit(page_size).sort(sort_str)
+        cursor = dbcoll.find(query_string, project_string).skip(offset).limit(page_size).sort(
+            sort_str)
     else:
         cursor = dbcoll.find(query_string, project_string).skip(offset).limit(page_size)
 
@@ -382,7 +403,8 @@ def summarize(stats):
         accuracy = str(round(100 * stats["Accuracy"], 2)) + "%"
     else:
         accuracy = stats["Accuracy"]
-    result = accuracy + " <span class=\"text-muted\"><small>(" + str(correct) + "/" + str(total) + ")</small</span>"
+    result = accuracy + " <span class=\"text-muted\"><small>(" + str(correct) + "/" + str(
+        total) + ")</small</span>"
 
     return result
 
@@ -467,7 +489,8 @@ def get_species_foot_count():
                 elif foot.lower() in ["unknown"]:
                     unknown = record["count"]
 
-                species_count[species] = {"Left Hind": left_hind, "Right Hind": right_hind, "Left Front": left_front,
+                species_count[species] = {"Left Hind": left_hind, "Right Hind": right_hind,
+                                          "Left Front": left_front,
                                           "Right Front": right_front, "Unknown": unknown}
             else:
                 if foot.lower() in ["lh", "left hind"]:
@@ -589,9 +612,11 @@ def get_species_stats(jsonified=True):
                 females += (individual[1] == 'F')
                 males += (individual[1] == 'M')
                 unknowns += (individual[1] == 'U')
-            image_count = species_image_counts[species] if species in species_image_counts.keys() else 0
+            image_count = species_image_counts[
+                species] if species in species_image_counts.keys() else 0
             species_count_list.append(
-                {"species": species, "individual": individuals, "images": image_count, "females": females,
+                {"species": species, "individual": individuals, "images": image_count,
+                 "females": females,
                  "males": males, "unknown": unknowns})
         except:
             print("Error getting species stats for ", species)
@@ -649,9 +674,12 @@ def index(sitetype="user"):
         speciesinfo = summary["Summary_Metrics"].get("Species_Classification", "")
         # print(speciesinfo)
         if speciesinfo != "":
-            correct = getcount(speciesinfo["All"], "Field", "Correct") + getcount(speciesinfo["All"], "Test", "Correct")
-            total = getcount(speciesinfo["All"], "Field", "Total") + getcount(speciesinfo["All"], "Test", "Total")
-            rating = getcount(speciesinfo["All"], "Field", "Rating") + getcount(speciesinfo["All"], "Test", "Rating")
+            correct = getcount(speciesinfo["All"], "Field", "Correct") + getcount(
+                speciesinfo["All"], "Test", "Correct")
+            total = getcount(speciesinfo["All"], "Field", "Total") + getcount(speciesinfo["All"],
+                                                                              "Test", "Total")
+            rating = getcount(speciesinfo["All"], "Field", "Rating") + getcount(speciesinfo["All"],
+                                                                                "Test", "Rating")
             # print("Spec Numbers:",correct,total)
             if total > 0:
                 acc = correct / total
@@ -666,11 +694,14 @@ def index(sitetype="user"):
         individualinfo = summary["Summary_Metrics"].get("Individual_Identification", "")
         # print(individualinfo)
         if individualinfo != "":
-            correct = getcount(individualinfo["All"], "Field", "Correct") + getcount(individualinfo["All"], "Test",
-                                                                                     "Correct")
-            total = getcount(individualinfo["All"], "Field", "Total") + getcount(individualinfo["All"], "Test", "Total")
-            rating = getcount(individualinfo["All"], "Field", "Rating") + getcount(individualinfo["All"], "Test",
-                                                                                   "Rating")
+            correct = getcount(individualinfo["All"], "Field", "Correct") + getcount(
+                individualinfo["All"], "Test",
+                "Correct")
+            total = getcount(individualinfo["All"], "Field", "Total") + getcount(
+                individualinfo["All"], "Test", "Total")
+            rating = getcount(individualinfo["All"], "Field", "Rating") + getcount(
+                individualinfo["All"], "Test",
+                "Rating")
             # print("Ind Numbers:",correct,total)
             if total > 0:
                 acc = correct / total
@@ -684,7 +715,8 @@ def index(sitetype="user"):
             individual_quality = round(float(qual), 2)
         break
 
-    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"], sort=[("TimeStamp", -1)])
+    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"],
+                                               sort=[("TimeStamp", -1)])
     if model_summary is not None:
         last_model_refresh = model_summary.get("TimeStamp", "")
 
@@ -693,18 +725,23 @@ def index(sitetype="user"):
     else:
         template = "home-admin.html"
 
-    return render_template(template, num_images=artifact_count, num_training_images=trained_artifact_count,
+    return render_template(template, num_images=artifact_count,
+                           num_training_images=trained_artifact_count,
                            num_species_all=all_species_count, num_species=modeled_species_count,
                            num_contributors=contributor_count,
                            num_individuals=individual_count, species_accuracy=species_accuracy,
-                           species_accuracy_count=species_accuracy_count, species_quality=species_quality,
-                           individual_accuracy=individual_accuracy, individual_accuracy_count=individual_accuracy_count,
+                           species_accuracy_count=species_accuracy_count,
+                           species_quality=species_quality,
+                           individual_accuracy=individual_accuracy,
+                           individual_accuracy_count=individual_accuracy_count,
                            individual_quality=individual_quality,
-                           last_model_refresh=last_model_refresh, species_data=get_species_stats(False),
+                           last_model_refresh=last_model_refresh,
+                           species_data=get_species_stats(False),
                            active='home', sitetype=sitetype)
 
 
 @app.route('/')
+@public_endpoint
 def home():
     # print("user")
     result = index("user")
@@ -731,10 +768,12 @@ def get_ratingscale():
 # @basic_auth.required
 def sightings_page():
     global last_model_refresh
-    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"], sort=[("TimeStamp", -1)])
+    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"],
+                                               sort=[("TimeStamp", -1)])
     if model_summary is not None:
         last_model_refresh = model_summary.get("TimeStamp", "")
-    return render_template("sightings.html", last_model_refresh=last_model_refresh, active="observations",
+    return render_template("sightings.html", last_model_refresh=last_model_refresh,
+                           active="observations",
                            sitetype="user")
 
 
@@ -742,10 +781,12 @@ def sightings_page():
 @basic_auth.required
 def sightings_admin_page():
     global last_model_refresh
-    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"], sort=[("TimeStamp", -1)])
+    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"],
+                                               sort=[("TimeStamp", -1)])
     if model_summary is not None:
         last_model_refresh = model_summary.get("TimeStamp", "")
-    return render_template("sightings-admin.html", last_model_refresh=last_model_refresh, active="observations",
+    return render_template("sightings-admin.html", last_model_refresh=last_model_refresh,
+                           active="observations",
                            sitetype="admin")
 
 
@@ -812,7 +853,8 @@ def GetSightingDetail(sighting):
                 record["Species_Inference"] = species
                 record["Individual_Inference"] = individual
         # print("Getting Artifact Info")
-        artifact_list = colartifacts.find({"Sighting": ID, "References.s3_image_name": {"$exists": 1}})
+        artifact_list = colartifacts.find(
+            {"Sighting": ID, "References.s3_image_name": {"$exists": 1}})
         record["Artifacts"] = []
         count = defaultdict(int)
         for artifact in artifact_list:
@@ -822,7 +864,8 @@ def GetSightingDetail(sighting):
             if type == "Footprint":
                 type = "footprints"
             count[type] += 1
-        record["Images"] = "Trails: " + str(count["trails"]) + " \n Footprints: " + str(count["footprints"])
+        record["Images"] = "Trails: " + str(count["trails"]) + " \n Footprints: " + str(
+            count["footprints"])
         # print(record["Images"])
     except:
         print("Issue getting metadata for sighting: ", sighting)
@@ -873,7 +916,8 @@ def get_sightings():
         # else:
         records.append(sighting)
 
-    Result = {"total": filtered_sightings_counter, "totalNotFiltered": total_sightings_counter, "rows": records}
+    Result = {"total": filtered_sightings_counter, "totalNotFiltered": total_sightings_counter,
+              "rows": records}
     # print(Result)
     return jsonify(Result)
 
@@ -901,7 +945,8 @@ def GetArtifactPredictions(artifact, Species_Master):
     Individual_Inference = artifact.get("Individual_Inference", {})
     best_spec = {"value": "", "confidence": 0}
     best_ind = {"value": "", "confidence": 0}
-    best_spec, best_ind = UpdateBestPredictions(best_spec, best_ind, Species_Inference, Individual_Inference)
+    best_spec, best_ind = UpdateBestPredictions(best_spec, best_ind, Species_Inference,
+                                                Individual_Inference)
     # print("First Best: ",best_spec,best_ind)
 
     if AIUse == "":
@@ -931,7 +976,8 @@ def GetArtifactPredictions(artifact, Species_Master):
                 #        Detected_Individual_Inference)#
 
                 #        #print("Detected & Classified: ",best_spec,best_ind)
-                detection_confidence = float(artifact["Footprint_Detection"][i].get("confidence", 0))
+                detection_confidence = float(
+                    artifact["Footprint_Detection"][i].get("confidence", 0))
 
                 Species_Inference = artifact["Footprint_Detection"][i].get("Species_Inference", "")
                 if Species_Inference == "":
@@ -940,13 +986,17 @@ def GetArtifactPredictions(artifact, Species_Master):
                     # print(Species_Inference)
                     cropped_species_inference = Species_Inference.get("value", "")
                     multiplier = FIELD_FACTOR
-                    species_conf = min(100, round(float(Species_Inference.get("confidence", 0)) * multiplier, 2))
-                    Species_Inference = {"value": cropped_species_inference, "confidence": species_conf}
+                    species_conf = min(100, round(
+                        float(Species_Inference.get("confidence", 0)) * multiplier, 2))
+                    Species_Inference = {"value": cropped_species_inference,
+                                         "confidence": species_conf}
                     if Species_Inference != "":
-                        Individual_Inference = artifact["Footprint_Detection"][i].get("Individual_Inference", "")
+                        Individual_Inference = artifact["Footprint_Detection"][i].get(
+                            "Individual_Inference", "")
                         if Individual_Inference == "":
                             Individual_Inference = {"value": "", "confidence": 0}
-                        best_spec, best_ind = UpdateBestPredictions(best_spec, best_ind, Species_Inference,
+                        best_spec, best_ind = UpdateBestPredictions(best_spec, best_ind,
+                                                                    Species_Inference,
                                                                     Individual_Inference)
                         # print("Detected: ",best_spec,best_ind)
             # except:
@@ -1005,8 +1055,8 @@ def GetArtifactDetail(artifact):
         # if num_detections==0 and len(image_stream)>0:
         if len(image_stream) > 0:
             blob["annotated_image"] = "<img src=\"data:image/jpeg;base64," + (
-                        (base64.b64encode(image_stream)).decode('UTF-8') +
-                        "\" class=\"img-fluid img-thumbnail\" alt=\"Annotated images\" loading=\"lazy\" width=\"260\" height=\"260\">")
+                    (base64.b64encode(image_stream)).decode('UTF-8') +
+                    "\" class=\"img-fluid img-thumbnail\" alt=\"Annotated images\" loading=\"lazy\" width=\"260\" height=\"260\">")
         # try:
         # best_spec={"value":"","confidence":0}
         # best_ind={"value":"","confidence":0}
@@ -1045,8 +1095,9 @@ def GetArtifactDetail(artifact):
         # blob["annotated_image"]="<img src=\"data:image/jpeg;base64,"+((base64.b64encode(byteArr)).decode('UTF-8')+
         # "\" class=\"img-fluid img-thumbnail\" alt=\"Annotated images\" loading=\"lazy\" width=\"260\" height=\"260\"")
 
-        spec_prediction, spec_confidence, ind_prediction, ind_confidence = GetArtifactPredictions(artifact,
-                                                                                                  Species_Master)
+        spec_prediction, spec_confidence, ind_prediction, ind_confidence = GetArtifactPredictions(
+            artifact,
+            Species_Master)
         # print("NEW: ",spec_prediction,spec_confidence,ind_prediction,ind_confidence)
 
         if float(spec_confidence) > SPECIES_THRESHOLD:
@@ -1087,8 +1138,9 @@ def get_details():
     #    sightings[sightingID]=sighting
     # artifact_list=sighting.get("Artifacts","")
     # if artifact_list=="":
-    artifact_list = colartifacts.find({"Sighting": ObjectId(sightingID), "References.s3_image_name": {"$exists": 1}},
-                                      {"_id": 1})
+    artifact_list = colartifacts.find(
+        {"Sighting": ObjectId(sightingID), "References.s3_image_name": {"$exists": 1}},
+        {"_id": 1})
     #    sighting["Artifacts"]=[str(item["_id"]) for item in artifact_list]
 
     for doc in artifact_list:
@@ -1116,20 +1168,24 @@ def get_details():
 # @basic_auth.required
 def images_page():
     global last_model_refresh
-    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"], sort=[("TimeStamp", -1)])
+    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"],
+                                               sort=[("TimeStamp", -1)])
     if model_summary is not None:
         last_model_refresh = model_summary.get("TimeStamp", "")
-    return render_template("images.html", last_model_refresh=last_model_refresh, active='images', sitetype="user")
+    return render_template("images.html", last_model_refresh=last_model_refresh, active='images',
+                           sitetype="user")
 
 
 @app.route('/images_admin_page')
 @basic_auth.required
 def images_admin_page():
     global last_model_refresh
-    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"], sort=[("TimeStamp", -1)])
+    model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"],
+                                               sort=[("TimeStamp", -1)])
     if model_summary is not None:
         last_model_refresh = model_summary.get("TimeStamp", "")
-    return render_template("images-admin.html", last_model_refresh=last_model_refresh, active='images',
+    return render_template("images-admin.html", last_model_refresh=last_model_refresh,
+                           active='images',
                            sitetype="admin")
 
 
@@ -1148,15 +1204,18 @@ def model_page():
     global last_model_refresh
 
     if last_model_refresh == "":
-        model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"], sort=[("TimeStamp", -1)])
+        model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"],
+                                                   sort=[("TimeStamp", -1)])
         if model_summary is not None:
             last_model_refresh = model_summary.get("TimeStamp", "")
 
     species_model_stats = get_model_stats(jsonified=False, task='Species_Classification')
     individual_model_stats = get_model_stats(jsonified=False, task='Individual_Identification')
 
-    return render_template("model-user.html", active='model', sitetype="user", species_data=get_species_stats(False), \
-                           foot_data=get_species_foot_count(), last_model_refresh=last_model_refresh,
+    return render_template("model-user.html", active='model', sitetype="user",
+                           species_data=get_species_stats(False), \
+                           foot_data=get_species_foot_count(),
+                           last_model_refresh=last_model_refresh,
                            species_model_stats=species_model_stats, \
                            individual_model_stats=individual_model_stats)
 
@@ -1166,15 +1225,18 @@ def model_admin_page():
     global last_model_refresh
 
     if last_model_refresh == "":
-        model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"], sort=[("TimeStamp", -1)])
+        model_summary = colmodelsummaries.find_one({}, projection=["TimeStamp"],
+                                                   sort=[("TimeStamp", -1)])
         if model_summary is not None:
             last_model_refresh = model_summary.get("TimeStamp", "")
 
     species_model_stats = get_model_stats(jsonified=False, task='Species_Classification')
     individual_model_stats = get_model_stats(jsonified=False, task='Individual_Identification')
 
-    return render_template("model-admin.html", active='model', sitetype="admin", species_data=get_species_stats(False), \
-                           foot_data=get_species_foot_count(), last_model_refresh=last_model_refresh,
+    return render_template("model-admin.html", active='model', sitetype="admin",
+                           species_data=get_species_stats(False), \
+                           foot_data=get_species_foot_count(),
+                           last_model_refresh=last_model_refresh,
                            species_model_stats=species_model_stats, \
                            individual_model_stats=individual_model_stats)
 
@@ -1214,7 +1276,8 @@ def get_artifacts():
             collection, match = search_str.split("|")
             if collection == "S":
                 pipeline = [{'$match': eval(match)},
-                            {'$lookup': {'from': 'Artifacts', 'localField': '_id', 'foreignField': 'Sighting',
+                            {'$lookup': {'from': 'Artifacts', 'localField': '_id',
+                                         'foreignField': 'Sighting',
                                          'as': 'Artifacts'}}, {
                                 '$unwind': {'path': '$Artifacts', 'includeArrayIndex': 'iArtifact',
                                             'preserveNullAndEmptyArrays': True}
@@ -1247,12 +1310,15 @@ def get_artifacts():
                 if len(val) > 0:
                     if val == "Field":
                         query_string = {"References.s3_image_name": {"$exists": 1},
-                                        "ExpertLabels.Rating": {"$exists": 0}, "MachineLearning.MLType": {"$exists": 0}}
+                                        "ExpertLabels.Rating": {"$exists": 0},
+                                        "MachineLearning.MLType": {"$exists": 0}}
                     else:
                         query_string = {"References.s3_image_name": {"$exists": 1},
-                                        "ExpertLabels.Rating": {"$exists": 0}, "MachineLearning.MLType": val}
+                                        "ExpertLabels.Rating": {"$exists": 0},
+                                        "MachineLearning.MLType": val}
                 else:
-                    query_string = {"References.s3_image_name": {"$exists": 1}, "ExpertLabels.Rating": {"$exists": 0}}
+                    query_string = {"References.s3_image_name": {"$exists": 1},
+                                    "ExpertLabels.Rating": {"$exists": 0}}
                 cursor = colartifacts.find(query_string, None).sort([("TimeStamp.created_at", -1)])
                 for doc in cursor:
                     # docId=str(doc.get("_id",""))
@@ -1262,7 +1328,8 @@ def get_artifacts():
 
         else:
             pipeline = [{'$match': {'$text': {'$search': search_str}}},
-                        {'$lookup': {'from': 'Artifacts', 'localField': '_id', 'foreignField': 'Sighting',
+                        {'$lookup': {'from': 'Artifacts', 'localField': '_id',
+                                     'foreignField': 'Sighting',
                                      'as': 'Artifacts'}}, {
                             '$unwind': {'path': '$Artifacts', 'includeArrayIndex': 'iArtifact',
                                         'preserveNullAndEmptyArrays': True}
@@ -1275,7 +1342,8 @@ def get_artifacts():
                     Alldocs.append(doc)
                     docIndx[docId] = 1
                     # print("from sightings: ",docId)
-            query_string = {"References.s3_image_name": {"$exists": 1}, "$text": {"$search": search_str}}
+            query_string = {"References.s3_image_name": {"$exists": 1},
+                            "$text": {"$search": search_str}}
             # Hardcoding sort to reverse chronological for now
             sort = [("TimeStamp.created_at", -1)]
             # print(mycol.database,mycol.full_name)
@@ -1309,7 +1377,8 @@ def get_artifacts():
         docs = [item for item in cursor]
 
     # if total_artifacts_counter==0:
-    total_artifacts_counter = colartifacts.count_documents({"References.s3_image_name": {"$exists": 1}})
+    total_artifacts_counter = colartifacts.count_documents(
+        {"References.s3_image_name": {"$exists": 1}})
     # print(cursor)
     for doc in docs:
         # try:
@@ -1357,7 +1426,8 @@ def get_artifacts():
         # continue
         # else:
         blobs.append(blob)
-    Result = {"total": filtered_artifacts_counter, "totalNotFiltered": total_artifacts_counter, "rows": blobs}
+    Result = {"total": filtered_artifacts_counter, "totalNotFiltered": total_artifacts_counter,
+              "rows": blobs}
     # print("RETURNING... ",filtered_artifacts_counter,total_artifacts_counter)
     return jsonify(Result)
 
@@ -1376,8 +1446,9 @@ def GetImageDetails(artifact):
             image_stream = get_blob(filename)
             num_detections = len(artifact.get("Footprint_Detection", ""))
 
-            blob["image"] = "<img src=\"data:image/jpeg;base64," + ((base64.b64encode(image_stream)).decode('UTF-8') +
-                                                                    "\" class=\"img-fluid img-thumbnail\" alt=\"Annotated images\" loading=\"lazy\" ")
+            blob["image"] = "<img src=\"data:image/jpeg;base64," + (
+                        (base64.b64encode(image_stream)).decode('UTF-8') +
+                        "\" class=\"img-fluid img-thumbnail\" alt=\"Annotated images\" loading=\"lazy\" ")
 
             if num_detections > 0:
                 img = Image.open(io.BytesIO(image_stream))
@@ -1396,8 +1467,8 @@ def GetImageDetails(artifact):
                 img.save(byteIO, format='JPEG', quality=60)
                 byteArr = byteIO.getvalue()
                 blob["annotated_image"] = "<img src=\"data:image/jpeg;base64," + (
-                            (base64.b64encode(byteArr)).decode('UTF-8') +
-                            "\" class=\"img-fluid img-thumbnail\" alt=\"Annotated images\" loading=\"lazy\" ")
+                        (base64.b64encode(byteArr)).decode('UTF-8') +
+                        "\" class=\"img-fluid img-thumbnail\" alt=\"Annotated images\" loading=\"lazy\" ")
     except:
         print("Issue getting Detailed Images")
 
@@ -1746,10 +1817,6 @@ def delete_user():
     return json.dumps({'status': status})
 
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
-
-
 @app.route('/add_observation', methods=['POST'])
 def add_observation():
     # try:
@@ -1758,3 +1825,84 @@ def add_observation():
     result = Create_Observation(data, files)
     print(data)
     return json.dumps({'status': resullt})
+
+
+#######################################################
+# Azure B2C Login Endpoints Start
+#######################################################
+@public_endpoint
+@app.route("/login")
+def login():
+    # Technically we could use empty list [] as scopes to do just sign in,
+    # here we choose to also collect end user consent upfront
+    session["flow"] = _build_auth_code_flow(scopes=AzureAuthentication.SCOPE)
+    return redirect(session["flow"]["auth_uri"])
+
+
+@public_endpoint
+@app.route(
+    AzureAuthentication.REDIRECT_PATH)  # Its absolute URL must match your app's redirect_uri set in AAD
+def authorized():
+    try:
+        cache = _load_cache()
+        result = _build_msal_app(cache=cache).acquire_token_by_auth_code_flow(
+            session.get("flow", {}), request.args)
+        if "error" in result:
+            return render_template("auth_error.html", result=result)
+        session["user"] = result.get("id_token_claims")
+        _save_cache(cache)
+    except ValueError:  # Usually caused by CSRF
+        pass  # Simply ignore them
+    return redirect(url_for("home"))
+
+
+@public_endpoint
+@app.route("/logout")
+def logout():
+    session.clear()  # Wipe out user and its token cache from session
+    return redirect(  # Also logout from your tenant's web session
+        AzureAuthentication.AUTHORITY + "/oauth2/v2.0/logout" +
+        "?post_logout_redirect_uri=" + url_for("home", _external=True))
+
+
+def _load_cache():
+    cache = msal.SerializableTokenCache()
+    if session.get("token_cache"):
+        cache.deserialize(session["token_cache"])
+    return cache
+
+
+def _save_cache(cache):
+    if cache.has_state_changed:
+        session["token_cache"] = cache.serialize()
+
+
+def _build_msal_app(cache=None, authority=None):
+    return msal.ConfidentialClientApplication(
+        AzureAuthentication.CLIENT_ID, authority=authority or AzureAuthentication.AUTHORITY,
+        client_credential=AzureAuthentication.CLIENT_SECRET, token_cache=cache)
+
+
+def _build_auth_code_flow(authority=None, scopes=None):
+    return _build_msal_app(authority=authority).initiate_auth_code_flow(
+        scopes or [],
+        redirect_uri=url_for("authorized", _external=True))
+
+
+def _get_token_from_cache(scope=None):
+    cache = _load_cache()  # This web app maintains one cache per session
+    cca = _build_msal_app(cache=cache)
+    accounts = cca.get_accounts()
+    if accounts:  # So all account(s) belong to the current signed-in user
+        result = cca.acquire_token_silent(scope, account=accounts[0])
+        _save_cache(cache)
+        return result
+
+
+app.jinja_env.globals.update(_build_auth_code_flow=_build_auth_code_flow)  # Used in template
+#######################################################
+# Azure B2C Login Endpoints End
+#######################################################
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')

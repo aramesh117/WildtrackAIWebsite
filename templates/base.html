@@ -54,7 +54,9 @@
             <ul class="navbar-nav text-right">
                 {% if sitetype == 'user' %}
                 <li class="nav-item {% if active=='about' %}active{% endif %}"><a class="nav-link" href="/about"><span class="fa fa-atlas fa-lg"></span> About</a></li>
-                <li class="nav-item {% if active=='help' %}active{% endif %}"><a class="nav-link" href="/help"><span class="fa fa-question-circle fa-lg"></span> Help &nbsp; </a></li> 
+                <li class="nav-item {% if active=='help' %}active{% endif %}"><a class="nav-link" href="/help"><span class="fa fa-question-circle fa-lg"></span> Help &nbsp; </a></li>
+                <li class="nav-item {% if active=='login' %}active{% endif %}"><a class="nav-link" href="/login"><span class="fa fa-question-circle fa-lg"></span> Login &nbsp; </a></li>
+                <li class="nav-item {% if active=='logout' %}active{% endif %}"><a class="nav-link" href="/logout"><span class="fa fa-question-circle fa-lg"></span> Logout &nbsp; </a></li>
                 {% else %}
                 <li class="nav-item {% if active=='about' %}active{% endif %}"><a class="nav-link" href="/about_admin"><span class="fa fa-atlas fa-lg"></span> About</a></li>
                 <li class="nav-item {% if active=='help' %}active{% endif %}"><a class="nav-link" href="/help_admin"><span class="fa fa-question-circle fa-lg"></span> Help &nbsp; </a></li> 

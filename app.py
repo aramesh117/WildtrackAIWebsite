@@ -1736,7 +1736,7 @@ def add_observation():
     #print(data)
     files=request.files.getlist('images')
     result=create_observation(data,files)
-    return json.dumps({'status':resullt})
+    return json.dumps({'status':result})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

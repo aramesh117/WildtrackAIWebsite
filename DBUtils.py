@@ -7,6 +7,14 @@ import dns
 import pymongo
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
 from bson.objectid import ObjectId
+import os
+import uuid
+import io
+from io import BytesIO
+from datetime import datetime
+import base64
+import PIL
+from PIL import Image,ImageDraw
 
 
 wildtrack_env = os.environ.get('WILDTRACK_ENVIRONMENT',"")
@@ -149,9 +157,9 @@ def create_observation(data,files,source="wildtrack-website"):
         #                            Key = image_name)
         #data=open(image, "rb")
         img = BytesIO(image.read())        
-        data = Image.open(img, 'r')        
+        imgdata = Image.open(img, 'r')        
         buf = BytesIO()        
-        data.save(buf, 'png')   
+        imgdata.save(buf, 'png')   
         container_client.upload_blob(name=image_name, data=buf.getvalue())
         artifact_schema = {
         'ArtifactType': data.get("artifacttype","footprints"),

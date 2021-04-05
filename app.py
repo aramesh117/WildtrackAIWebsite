@@ -1729,19 +1729,19 @@ def delete_user():
     #print(status)
     return json.dumps({'status':status})
 
+
+@app.route('/add_observation',methods=['POST'])   
+def add_observation():
+    data=request.values
+    #print(data)
+    files=request.files.getlist('images')
+    result=create_observation(data,files)
+    return json.dumps({'status':resullt})
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
 
 
-@app.route('/add_observation', methods=['POST'])   
-
-def add_observation():
-    #try:
-    data=request.values
-    files=request.files.getlist('images')
-    result=Create_Observation(data,files)
-    print(data)
-    return json.dumps({'status':resullt})
 
 
    

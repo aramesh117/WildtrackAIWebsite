@@ -8,10 +8,21 @@ import pymongo
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
 from bson.objectid import ObjectId
 
-MONGO_DB='wildtrack-db01'
-AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
-AZURE_BLOB_CONTAINER = "wtimages01-prod01"
-AZURE_TEXT_CONTAINER = "wtimages-1-prod02"
+
+wildtrack_env = os.environ.get('WILDTRACK_ENVIRONMENT',"")
+
+if wildtrack_env=="DEVELOPMENT":
+    #print("Connecting to Development")
+    MONGO_DB='wildtrack-dev'
+    AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
+    AZURE_BLOB_CONTAINER = "wtimages01-dev01"
+    AZURE_TEXT_CONTAINER = "wtimages01-dev02"
+else:
+    #print("Connecting to Production")
+    MONGO_DB='wildtrack-db01'
+    AZURE_CONNECT_STRING = 'DefaultEndpointsProtocol=https;AccountName=wtimages01;AccountKey=k3BuXSlMiDyv+7ftWQqAPLKhu1OwIvd8W2/EjEjzVf/D/uSodDmCHp46KnGBFIaEBFpGHKdf5Jn9dxMkSWNqTQ==;EndpointSuffix=core.windows.net'
+    AZURE_BLOB_CONTAINER = "wtimages01-prod01"
+    AZURE_TEXT_CONTAINER = "wtimages01-prod02"
 
 #JTD+1 12/2020 Non longer needed
 client = pymongo.MongoClient("mongodb+srv://mongoadmin:BmmfKb1UkIFbRFl5@cluster0.ybns4.azure.mongodb.net/admin?retryWrites=true&w=majority")
@@ -26,13 +37,26 @@ colspecies=db["Species"]
 blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECT_STRING)
 container_client = blob_service_client.get_container_client(AZURE_BLOB_CONTAINER)
 
+
+def cleanNullTerms(d):
+
+    clean = {}
+    for k, v in d.items():
+        if isinstance(v, dict):
+            nested = cleanNullTerms(v)
+            if len(nested.keys()) > 0:
+                clean[k] = nested
+        elif v != None and v != "":
+            clean[k] = v
+    return clean
+
 def del_sighting(ID):
     if ID=="":
         return 'Error - No ID'
     else:
         artifacts=""
         artifact_list=colartifacts.find({"Sighting":ObjectId(ID)})
-        #print(artifact_list)
+        print(artifact_list)
         for artifact in artifact_list:
             #artifact=colartifacts.find_one({"_id":art_ID})
             art_ID=artifact.get("_id","")
@@ -114,9 +138,7 @@ def create_observation(data,files,source="wildtrack-website"):
     cleanSightingSchema = cleanNullTerms(sighting_schema)
     sighting_id = db.Sightings.insert_one(cleanSightingSchema).inserted_id
     
-    uploaded_files=request.files.getlist('images')
-    print(len(uploaded_files))
-    for image in uploaded_files:
+    for image in files:
         #uploaded_file.save(uploaded_file.filename)
         print(image.filename)
 # Establish IBM COS client and write directly to S3

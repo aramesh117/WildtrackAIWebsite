@@ -127,7 +127,7 @@ def create_observation(data,files,source="wildtrack-website"):
             'created_at': instance,
             'uploaded_at': instance},
         'Location': {
-            'LocationName': '',
+            'LocationName': data.get("location",""),
             'GPS': {}},
         'UserLabels': {
             'Species': data.get("species",""),

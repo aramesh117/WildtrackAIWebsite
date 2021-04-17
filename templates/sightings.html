@@ -60,21 +60,22 @@
 
 
                     <div class= "form-group row">
-                      <label for = "date" class="col-md-1 col-form-label;\">Date</label> 
-                        <div class = "col-md-3">
-                          <input type="date" class="form-control" id="date" name="date"  placeholder="mm-dd-yyyy">
-                          <p id = "datePrompt"></p>
-                        </div>
-                        
+                         
                       <label for="place" class="col-md-1 col-form-label">Location</label>
                        <div class = "col-md-3">
                            <input type="text" class="form-control" id="place" name="place" onblur= "validatePlace();" placeholder="City, State">
                                        
                       </div>
-                     <label for = "long/lat" class = col-md-1> Coordinates: </label>
+
+                     <label for = "Latitude" class = col-md-1> Latitude </label>
                       <div class = col-md-3>
                           
-                          <p id = "demo">loading coordinates....</p>
+                          <input class = "form-control" name = "Latitude" id = "Latitude" value = "loading latitude...."></input>
+                      </div>    
+
+                      <label for = "Longitude" class = col-md-1> Longitude</label>
+                      <div class = col-md-3>
+                          <input class = "form-control" name = "Longitude" id = "Longitude" value = "loading longitude...."> </input>
                       </div>    
                   </div>
 
@@ -168,10 +169,16 @@
                          
                 
                 <div class = "form-group row">
-                  <label for ="time" class = "col-md-1"> Time</label>
+                  <label for ="time" class = "col-md-1">Time</label>
                   <div class = "col-md-3">
                       <input type= "time" id = "time" class = "form-control" placeholder = "select time">
                   </div>
+
+                  <label for = "date" class="col-md-1 col-form-label;\">Date</label> 
+                        <div class = "col-md-3">
+                          <input type="date" class="form-control" id="date" name="date"  placeholder="mm-dd-yyyy">
+                          <p id = "datePrompt"></p>
+                        </div>
                 </div>
 
 
@@ -639,8 +646,7 @@ function getLocation(){
 };
 
 function showPosition(position){
-var x = document.getElementById ("demo");
-x.innerHTML = "Latitude:" + position.coords.latitude +
-"<br> Longitude:" + position.coords.longitude;
+document.getElementById ("Latitude").value = position.coords.latitude;
+document.getElementById("Longitude").value = position.coords.longitude;
 };
 {% endblock %} 

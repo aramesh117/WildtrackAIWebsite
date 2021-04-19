@@ -117,8 +117,8 @@ last_model_refresh=""
 current_sightings_search=""
 Alldocs=[]
 species_image_counts = {}
-Species_Master=sorted(["Tiger: Amur","Tiger: Bengal","Cheetah: South East African","Leopard: African","Puma","Jaguar","Lion: African","Elephant: African",
-"Rhino: Black","Rhino: White","Tapir: Lowland","Bongo: Eastern Mountain","Otter: Eurasian"])
+#Species_Master=sorted(["Tiger: Amur","Tiger: Bengal","Cheetah: South East African","Leopard: African","Puma","Jaguar","Lion: African","Elephant: African",
+#"Rhino: Black","Rhino: White","Tapir: Lowland","Bongo: Eastern Mountain","Otter: Eurasian","Panda: Giant"])
 #Species_Master=sorted(["Amur Tiger","Bengal Tiger","Cheetah","Leopard","Puma","Jaguar","African lion","African elephant",
 #"Black Rhino","White Rhino","Lowland Tapir","Bongo","Otter"])
 
@@ -413,7 +413,7 @@ def get_model_stats(jsonified=True,task='Individual_Identification'):
                         line[tag]=str(round(100*data["Accuracy"],2))
                 line["header"]=species
             except:
-                print("Error retrieving Model stats")
+                print("Error retrieving Model stats",tag,data)
             result.append(line)
 
         break

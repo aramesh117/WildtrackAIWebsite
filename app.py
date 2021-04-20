@@ -9,8 +9,6 @@ from flask_basicauth import BasicAuth
 import dns
 import pymongo
 import pprint
-import ibm_boto3
-from ibm_botocore.client import Config, ClientError
 import io
 import base64
 import PIL

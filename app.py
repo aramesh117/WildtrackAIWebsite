@@ -1190,16 +1190,19 @@ def images_admin_page():
 
 
 @app.route('/help')
+@public_endpoint
 def help_page():
     return render_template("help-user.html", active='help', sitetype="user")
 
 
 @app.route('/help_admin')
+@public_endpoint
 def help_admin_page():
     return render_template("help-admin.html", active='help', sitetype="admin")
 
 
 @app.route('/model')
+@public_endpoint
 def model_page():
     global last_model_refresh
 
@@ -1221,6 +1224,7 @@ def model_page():
 
 
 @app.route('/model_admin')
+@public_endpoint
 def model_admin_page():
     global last_model_refresh
 
@@ -1242,11 +1246,13 @@ def model_admin_page():
 
 
 @app.route('/about')
+@public_endpoint
 def about_page():
     return render_template("about-user.html", active='about', sitetype="user")
 
 
 @app.route('/about_admin')
+@public_endpoint
 def about_admin_page():
     return render_template("about-admin.html", active='about', sitetype="admin")
 
@@ -1272,7 +1278,7 @@ def get_artifacts():
         # if current_sightings_search!=search_str:
         #    current_sightings_search=search_str
         if "|" in search_str:
-            # print(search_str)
+            print(search_str)
             collection, match = search_str.split("|")
             if collection == "S":
                 pipeline = [{'$match': eval(match)},
@@ -1835,6 +1841,8 @@ def login():
     # Technically we could use empty list [] as scopes to do just sign in,
     # here we choose to also collect end user consent upfront
     session["flow"] = _build_auth_code_flow(scopes=AzureAuthentication.SCOPE)
+    #print(AzureAuthentication.REDIRECT_PATH)
+    #print(session["flow"]["auth_uri"])
     return redirect(session["flow"]["auth_uri"])
 
 
@@ -1843,6 +1851,7 @@ def login():
     AzureAuthentication.REDIRECT_PATH)  # Its absolute URL must match your app's redirect_uri set in AAD
 def authorized():
     try:
+        print(AzureAuthentication.REDIRECT_PATH)
         cache = _load_cache()
         result = _build_msal_app(cache=cache).acquire_token_by_auth_code_flow(
             session.get("flow", {}), request.args)

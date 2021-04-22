@@ -58,19 +58,31 @@
             </ul>
             <ul class="navbar-nav text-right">
                 {% if sitetype == 'user' %}
-                <li class="nav-item {% if active=='about' %}active{% endif %}"><a class="nav-link" href="/about"><span class="fa fa-atlas fa-lg"></span> About</a></li>
-                <li class="nav-item {% if active=='help' %}active{% endif %}"><a class="nav-link" href="/help"><span class="fa fa-question-circle fa-lg"></span> Help &nbsp; </a></li>
-                <li class="nav-item {% if active=='login' %}active{% endif %}"><a class="nav-link" href="/login"><span class="fa fa-question-circle fa-lg"></span> Login &nbsp; </a></li>
-                <li class="nav-item {% if active=='logout' %}active{% endif %}"><a class="nav-link" href="/logout"><span class="fa fa-question-circle fa-lg"></span> Logout &nbsp; </a></li>
+                    <li class="nav-item {% if active=='about' %}active{% endif %}"><a class="nav-link" href="/about"><span class="fa fa-atlas fa-lg"></span> About</a></li>
+                    <li class="nav-item {% if active=='help' %}active{% endif %}"><a class="nav-link" href="/help"><span class="fa fa-question-circle fa-lg"></span> Help &nbsp; </a></li>
                 {% else %}
-                <li class="nav-item {% if active=='about' %}active{% endif %}"><a class="nav-link" href="/about_admin"><span class="fa fa-atlas fa-lg"></span> About</a></li>
-                <li class="nav-item {% if active=='help' %}active{% endif %}"><a class="nav-link" href="/help_admin"><span class="fa fa-question-circle fa-lg"></span> Help &nbsp; </a></li> 
+                    <li class="nav-item {% if active=='about' %}active{% endif %}"><a class="nav-link" href="/about_admin"><span class="fa fa-atlas fa-lg"></span> About</a></li>
+                    <li class="nav-item {% if active=='help' %}active{% endif %}"><a class="nav-link" href="/help_admin"><span class="fa fa-question-circle fa-lg"></span> Help &nbsp; </a></li> 
+                {% endif %}
+                    <span class="navbar-text">
+                        <a role="button" id="feedback"><span class="fa fa-envelope fa-lg"></span> Feedback</a>
+                    </span>
+                {% if session['user'] %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="#" id="navbarDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="fa fa-caret-down fa-lg"></span>{{session['user']['name']}}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="/Profle"><span class="fa fa-id-card fa-lg"></span> Profile </a>
+                        <a class="dropdown-item" href="/logout"><span class="fa fa-sign-out-alt fa-lg"></span> Logout </a>
+
+                        </div>
+                  </li>
+                {% else %}
+                    <li class="nav-item {% if active=='login' %}active{% endif %}"><a class="nav-link" href="/login"><span class="fa fa-sign-in-alt fa-lg"></span> Sign In &nbsp; </a></li>
                 {% endif %}
             </ul>
-            <span class="navbar-text">
-        
-                <a role="button" id="feedback"><span class="fa fa-envelope fa-lg"></span> Feedback</a>
-            </span>
+
         </div>
 
     </nav>
@@ -156,6 +168,8 @@
     {% block content %} {% endblock %}
 
 <script>
+
+
     $("#feedback").click(function(){
         $('#feedbackModal').modal('show')});
 

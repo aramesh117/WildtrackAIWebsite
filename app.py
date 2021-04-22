@@ -1845,6 +1845,13 @@ def login():
     #print(session["flow"]["auth_uri"])
     return redirect(session["flow"]["auth_uri"])
 
+@public_endpoint
+@app.route("/signup")
+def signup():
+    # Returns customized signup page
+    
+    return render_template("signup.html")
+
 
 @public_endpoint
 @app.route(

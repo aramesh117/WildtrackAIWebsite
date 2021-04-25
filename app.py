@@ -1827,6 +1827,7 @@ def add_observation():
     
     data=request.values
     print(data)
+    print(session)
     files=request.files.getlist('images')
     #print(files)
     #print(request.files.getlist('prints'))
@@ -1846,6 +1847,7 @@ def delete_sighting():
 @public_endpoint
 @app.route("/login")
 def login():
+    session['previous_url']=request.referrer
     # Technically we could use empty list [] as scopes to do just sign in,
     # here we choose to also collect end user consent upfront
     session["flow"] = _build_auth_code_flow(scopes=AzureAuthentication.SCOPE)
@@ -1857,6 +1859,7 @@ def login():
 @app.route("/signup")
 def signup():
     # Returns customized signup page
+    session['previous_url']=request.referrer
     session["flow"] = _build_auth_code_flow(authority=AzureAuthentication.B2C_SIGNUP_AUTHORITY,scopes=AzureAuthentication.SCOPE)
     #print(AzureAuthentication.REDIRECT_PATH)
     #print(session["flow"]["auth_uri"])
@@ -1866,6 +1869,7 @@ def signup():
 @app.route("/profile")
 def profile():
     # Returns customized profile page
+    session['previous_url']=request.referrer
     session["flow"] = _build_auth_code_flow(authority=AzureAuthentication.B2C_PROFILE_AUTHORITY,scopes=AzureAuthentication.SCOPE)
     #print(AzureAuthentication.REDIRECT_PATH)
     #print(session["flow"])
@@ -1875,6 +1879,7 @@ def profile():
 @app.route("/passwordreset")
 def passwordreset():
     # Returns customized profile page
+    session['previous_url']=request.referrer
     session["flow"] = _build_auth_code_flow(authority=AzureAuthentication.B2C_RESET_PASSWORD_AUTHORITY,scopes=AzureAuthentication.SCOPE)
     #print(AzureAuthentication.REDIRECT_PATH)
     #print(session["flow"])
@@ -1891,13 +1896,20 @@ def authorized():
         result = _build_msal_app(cache=cache).acquire_token_by_auth_code_flow(
             session.get("flow", {}), request.args)
         if "error" in result:
-            return render_template("auth_error.html", result=result)
+            print("ERROR!",result,request.referrer)
+            err=result.get("error_description","")
+            if 'AADB2C90091' in err or 'AADB2C90088' in err:
+                #return redirect(url_for("home"))
+                return redirect(session['previous_url'])
+            else:
+                return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
         print(session["user"])
         _save_cache(cache)
     except ValueError:  # Usually caused by CSRF
         pass  # Simply ignore them
-    return redirect(url_for("home"))
+    #return redirect(url_for("home"))
+    return redirect(session['previous_url'])
 
 
 @public_endpoint

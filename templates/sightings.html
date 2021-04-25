@@ -165,10 +165,10 @@
                     
                       
                 <div class="form-group row">
-                    <label for="images" class="col-md-1 col-form-label">Images</label>
+                    <label for="images" class="col-md-1 col-form-label" >Images</label>
                     <div class="col-md-10">
-                        <input type="file" class="form-control" id="images" accept="image/*" multiple="multiple" onchange="loadFile(event)">
-                        <output id="prints" name="prints"></output>
+                        <input type="file" class="form-control" id="images" accept="image/*" multiple="multiple" onchange="loadFile(event)" >
+                        <output id="prints" name="prints" ></output>
                     </div>  
                 </div>
                            
@@ -650,7 +650,10 @@ $('#NewSightingform').on('submit',function(e){
     var feet=[];
     var comments=[];
     //console.log(images.length);
-
+    if (images.length==0) {
+      alert("Please include at least one image before submitting this form");
+    }
+    else {
     for (var i = 0; i < images.length; i++) {
       if (!(typeof images[i] === 'undefined')){
         prints.push(images[i]);
@@ -673,6 +676,7 @@ $('#NewSightingform').on('submit',function(e){
     //File data
     formdata.append("newname","{{session['user']['name']}}");
     formdata.append("newemail","{{session['user']['emails'][0]}}");
+    formdata.append("org","{{session['user']['extension_Organization']}}");
     
     $.ajax({
         url:'/add_observation',
@@ -693,6 +697,7 @@ $('#NewSightingform').on('submit',function(e){
                         location.reload(true);
 			    }
     });
+  }
 });
 
 

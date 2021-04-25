@@ -2,10 +2,11 @@
 
 {% block navitems %} 
     <li class="nav-item {% if active=='home' %}active{% endif %}"><a class="nav-link" href="/"><span class="fa fa-paw fa-lg"></span> WildTrack AI</a></li>
+    {% if session['user'] %}
     <li class="nav-item {% if active=='observations' %}active{% endif %}"><a class="nav-link" href="/sightings_page"><span class="fa fa-eye fa-lg"></span> Observations</a></li>
     <li class="nav-item {% if active=='images' %}active{% endif %}"><a class="nav-link" href="/images_page"><span class="fa fa-camera fa-lg"></span> Images</a></li>
-    <li class="nav-item {% if active=='model' %}active{% endif %}"><a class="nav-link" href="/model"><span class="fa fa-code-branch fa-lg"></span> System Details</a></li>
     <li class="nav-item {% if active=='users' %}active{% endif %}"><a class="nav-link" href="/feedback_page"><span class="fa fa-comments fa-lg"></span> Discussion</a></li>
-{#    <li class="nav-item {% if active=='home' %}active{% endif %}"><a class="nav-link" href="/login"><span class="fa fa-comments fa-lg"></span> Login</a></li>#}
-{#    <li class="nav-item {% if active=='home' %}active{% endif %}"><a class="nav-link" href="/logout"><span class="fa fa-comments fa-lg"></span> Logout</a></li>#}
+    {% endif %}
+    <li class="nav-item {% if active=='model' %}active{% endif %}"><a class="nav-link" href="/model"><span class="fa fa-code-branch fa-lg"></span> System Details</a></li>
+
 {% endblock %}

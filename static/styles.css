@@ -121,3 +121,6 @@ canvas {
 .social-icon-box { margin-bottom: 5px; background-color: #193e6b; width: 46px; height: 46px; color: #ffffff; font-size: 16px; padding: 15px 19px 26px 16px; display: inline-block; line-height: 1.2; }
 .team-img:hover .social-media { opacity: 1; transition: 2s ease; }
 .team-block.active .social-media { opacity: 1; transition: 2s ease; }
+
+
+.top-buffer { margin-top:50px; }

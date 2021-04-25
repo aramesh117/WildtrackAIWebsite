@@ -73,13 +73,21 @@
                             <span class="fa fa-caret-down fa-lg"></span>{{session['user']['name']}}
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="/Profle"><span class="fa fa-id-card fa-lg"></span> Profile </a>
+                        <a class="dropdown-item" href="/profile"><span class="fa fa-id-card fa-lg"></span> Profile </a>
+                        <a class="dropdown-item" href="/passwordreset"><span class="fa fa-key fa-lg"></span> Change Password </a>
                         <a class="dropdown-item" href="/logout"><span class="fa fa-sign-out-alt fa-lg"></span> Logout </a>
 
                         </div>
                   </li>
-                {% else %}
-                    <li class="nav-item {% if active=='login' %}active{% endif %}"><a class="nav-link" href="/login"><span class="fa fa-sign-in-alt fa-lg"></span> Sign In &nbsp; </a></li>
+                {% else %}    
+
+                    {% if config.get("B2C_SIGNUP_AUTHORITY") %}
+                        <li class="nav-item {% if active=='signup' %}active{% endif %}"></li><a class="nav-link" href='{{_build_auth_code_flow(authority=config["B2C_SIGNUP_AUTHORITY"])["auth_uri"]}}'><span class="fa fa-user-plus fa-lg"></span> Signup &nbsp;</a></li>
+                    {% endif %}
+
+                    {% if config.get("AUTHORITY") %}
+                        <li class="nav-item {% if active=='login' %}active{% endif %}"><a class="nav-link" href="/login"><span class="fa fa-sign-in-alt fa-lg"></span> Login &nbsp; </a></li>
+                    {% endif %}
                 {% endif %}
             </ul>
 

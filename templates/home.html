@@ -201,6 +201,10 @@
                     <div class="card border-info">
                         <div class="card-header border-info">
                             <h5>Join our community to help develop the world’s first endangered species footprint database!</h5>
+                            {% if not session['user'] %}
+                                <h6>Click <a href="/signin">here</a> to register as a WildTrack Contributor or directly
+                                <a href="/login"> login</a> if you already have an account</h6>
+                            {% endif %}
                         </div>
                         <div class="card-body">
 

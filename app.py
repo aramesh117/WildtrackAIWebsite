@@ -1824,13 +1824,21 @@ def delete_user():
 
 @app.route('/add_observation',methods=['POST'])   
 def add_observation():
+    
     data=request.values
-    #print(data)
+    print(data)
     files=request.files.getlist('images')
+    #print(files)
+    #print(request.files.getlist('prints'))
     result=create_observation(data,files)
     return json.dumps({'status':result})
 
-
+@app.route('/delete_sighting', methods=['POST'])   
+def delete_sighting():
+    data=request.values
+    ID=data.get('ID')
+    status=del_sighting(ID)
+    return json.dumps({'status':status})
 
 #######################################################
 # Azure B2C Login Endpoints Start
@@ -1849,8 +1857,28 @@ def login():
 @app.route("/signup")
 def signup():
     # Returns customized signup page
-    
-    return render_template("signup.html")
+    session["flow"] = _build_auth_code_flow(authority=AzureAuthentication.B2C_SIGNUP_AUTHORITY,scopes=AzureAuthentication.SCOPE)
+    #print(AzureAuthentication.REDIRECT_PATH)
+    #print(session["flow"]["auth_uri"])
+    return redirect(session["flow"]["auth_uri"])
+
+@public_endpoint
+@app.route("/profile")
+def profile():
+    # Returns customized profile page
+    session["flow"] = _build_auth_code_flow(authority=AzureAuthentication.B2C_PROFILE_AUTHORITY,scopes=AzureAuthentication.SCOPE)
+    #print(AzureAuthentication.REDIRECT_PATH)
+    #print(session["flow"])
+    return redirect(session["flow"]["auth_uri"])
+
+@public_endpoint
+@app.route("/passwordreset")
+def passwordreset():
+    # Returns customized profile page
+    session["flow"] = _build_auth_code_flow(authority=AzureAuthentication.B2C_RESET_PASSWORD_AUTHORITY,scopes=AzureAuthentication.SCOPE)
+    #print(AzureAuthentication.REDIRECT_PATH)
+    #print(session["flow"])
+    return redirect(session["flow"]["auth_uri"])
 
 
 @public_endpoint
@@ -1865,6 +1893,7 @@ def authorized():
         if "error" in result:
             return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
+        print(session["user"])
         _save_cache(cache)
     except ValueError:  # Usually caused by CSRF
         pass  # Simply ignore them

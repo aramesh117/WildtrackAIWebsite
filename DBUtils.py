@@ -15,6 +15,7 @@ from datetime import datetime
 import base64
 import PIL
 from PIL import Image,ImageDraw
+import html
 
 
 wildtrack_env = os.environ.get('WILDTRACK_ENVIRONMENT',"")
@@ -103,7 +104,7 @@ def del_record(collection,ID):
     
 
 def create_observation(data,files,source="wildtrack-website"):
-    print(data)
+    #print(data)
 
 
     #feedback["Images"]=data.get("images","")
@@ -118,9 +119,10 @@ def create_observation(data,files,source="wildtrack-website"):
     #print(forminstance)
     #print("Adding feedback",request.values,feedback)
     # Define MongoDB Sighting collection schema
+    print(html.unescape(data.get("newname")))
     sighting_schema = {
         'RecorderInfo': {
-            'Name': data.get("newname",""),
+            'Name': html.unescape(data.get("newname","")),
             'Email': data.get("newemail",""),
             'Organization': data.get("org","")},
         'TimeStamp': {
@@ -145,7 +147,10 @@ def create_observation(data,files,source="wildtrack-website"):
     # Remove null schema values and post record to MongoDB
     cleanSightingSchema = cleanNullTerms(sighting_schema)
     sighting_id = db.Sightings.insert_one(cleanSightingSchema).inserted_id
-    
+    filenum=0
+    imagenotes=data.getlist("imagecomments")
+    feet=data.getlist("feet")
+    print(imagenotes,feet)
     for image in files:
         #uploaded_file.save(uploaded_file.filename)
         print(image.filename)
@@ -171,14 +176,17 @@ def create_observation(data,files,source="wildtrack-website"):
         'References': {
             'Source': source,
             's3_image_name': image_name},
-        'UserLabells': {
-            'Foot':data.get ("foot",""),
-            'FootprintID': data.get("footprintid","")}
+        'UserLabels': {
+            'Foot':feet[filenum]},
+        'Comments': imagenotes[filenum]
         }
+        #'FootprintID': data.get("footprintid","")}
 
         cleanArtifactSchema = cleanNullTerms(artifact_schema)
         artifact_id = db.Artifacts.insert_one(cleanArtifactSchema)
         print("Artifact: ",artifact_id)
+
+        filenum+=1
 
 
 

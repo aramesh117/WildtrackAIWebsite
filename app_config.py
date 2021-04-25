@@ -9,7 +9,8 @@ class AzureAuthentication:
     #b2c_tenant = "wildtrackcontributors"
     b2c_tenant = "wildtrackai"
     #signupsignin_user_flow = "B2C_1_simple_signup_signin"
-    signupsignin_user_flow = "B2C_1_wiildtrackaisignup"
+    signin_user_flow = "B2C_1_wildtrackailogin"
+    signup_user_flow = "B2C_1_wildtrackaisignup"
     #editprofile_user_flow = "B2C_1_simple_profile_editing"
     editprofile_user_flow = "B2C_1_wildtrackaiprofile"
     #resetpassword_user_flow = "B2C_1_simple_password_reset"
@@ -28,7 +29,9 @@ class AzureAuthentication:
     #     raise ValueError("Need to define CLIENT_SECRET environment variable")
 
     AUTHORITY = authority_template.format(
-        tenant=b2c_tenant, user_flow=signupsignin_user_flow)
+        tenant=b2c_tenant, user_flow=signin_user_flow)
+    B2C_SIGNUP_AUTHORITY = authority_template.format(
+        tenant=b2c_tenant, user_flow=signup_user_flow)
     B2C_PROFILE_AUTHORITY = authority_template.format(
         tenant=b2c_tenant, user_flow=editprofile_user_flow)
     B2C_RESET_PASSWORD_AUTHORITY = authority_template.format(

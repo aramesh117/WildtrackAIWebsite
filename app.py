@@ -132,11 +132,17 @@ Species_Master = sorted(
 @app.before_request
 def check_azure_login():
     login_valid = 'user' in session
-    if (request.endpoint and
-            not login_valid and
-            request.endpoint != 'static' and
-            not getattr(app.view_functions[request.endpoint], 'is_public', False)):
+    if (request.endpoint and not login_valid and request.endpoint != 'static' and not getattr(app.view_functions[request.endpoint], 'is_public', False)):
+        print("First logiin redirect")
         return redirect(url_for("login"))
+    else:
+        if app.env == "development" or request.is_secure or 'localhost' in request.url:
+            return
+        else:
+            url = request.url.replace("http://", "https://", 1)
+            code = 301
+            return redirect(url, code=code)
+    
 
 
 def public_endpoint(function):
@@ -743,7 +749,7 @@ def index(sitetype="user"):
 @app.route('/')
 @public_endpoint
 def home():
-    # print("user")
+    print("IIN")
     result = index("user")
     return result
 

@@ -135,14 +135,14 @@ def check_azure_login():
     if (request.endpoint and not login_valid and request.endpoint != 'static' and not getattr(app.view_functions[request.endpoint], 'is_public', False)):
         return redirect(url_for("login"))
     else:
-        if request.is_secure or 'localhost' in request.url:
-            return
-        else:
-            url = request.url.replace("http://", "https://", 1)
-            code = 301
-            print("Secured url: ",url)
-            return redirect(url, code=code)
-            #return
+        #if request.is_secure or 'localhost' in request.url:
+        #    return
+        #else:
+        #    url = request.url.replace("http://", "https://", 1)
+        #    code = 301
+        #    print("Secured url: ",url)
+        #    return redirect(url, code=code)
+        return
 
 
 def public_endpoint(function):

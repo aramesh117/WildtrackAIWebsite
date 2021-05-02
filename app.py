@@ -133,6 +133,7 @@ Species_Master = sorted(
 def check_azure_login():
     login_valid = 'user' in session
     if (request.endpoint and not login_valid and request.endpoint != 'static' and not getattr(app.view_functions[request.endpoint], 'is_public', False)):
+        print(url_for("login"))
         return redirect(url_for("login"))
     else:
         #if request.is_secure or 'localhost' in request.url:

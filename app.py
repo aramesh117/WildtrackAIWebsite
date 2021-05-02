@@ -139,10 +139,10 @@ def check_azure_login():
             return
         else:
             url = request.url.replace("http://", "https://", 1)
-            code = 301
+            #code = 301
             print("Secured url: ",url)
-            return redirect(url, code=code)
-    
+            #return redirect(url, code=code)
+            return
 
 
 def public_endpoint(function):

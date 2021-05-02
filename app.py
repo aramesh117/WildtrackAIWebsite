@@ -133,14 +133,14 @@ Species_Master = sorted(
 def check_azure_login():
     login_valid = 'user' in session
     if (request.endpoint and not login_valid and request.endpoint != 'static' and not getattr(app.view_functions[request.endpoint], 'is_public', False)):
-        print("First logiin redirect")
         return redirect(url_for("login"))
     else:
-        if app.env == "development" or request.is_secure or 'localhost' in request.url:
+        if request.is_secure or 'localhost' in request.url:
             return
         else:
             url = request.url.replace("http://", "https://", 1)
             code = 301
+            print("Secured url: ",url)
             return redirect(url, code=code)
     
 
@@ -1897,7 +1897,7 @@ def passwordreset():
     AzureAuthentication.REDIRECT_PATH)  # Its absolute URL must match your app's redirect_uri set in AAD
 def authorized():
     try:
-        print(AzureAuthentication.REDIRECT_PATH)
+        #print(AzureAuthentication.REDIRECT_PATH)
         cache = _load_cache()
         result = _build_msal_app(cache=cache).acquire_token_by_auth_code_flow(
             session.get("flow", {}), request.args)
@@ -1910,7 +1910,7 @@ def authorized():
             else:
                 return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
-        print(session["user"])
+        #print(session["user"])
         _save_cache(cache)
     except ValueError:  # Usually caused by CSRF
         pass  # Simply ignore them

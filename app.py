@@ -1859,7 +1859,7 @@ def login():
     # here we choose to also collect end user consent upfront
     session["flow"] = _build_auth_code_flow(scopes=AzureAuthentication.SCOPE)
     #print(AzureAuthentication.REDIRECT_PATH)
-    #print(session["flow"]["auth_uri"])
+    print(session["flow"]["auth_uri"])
     return redirect(session["flow"]["auth_uri"])
 
 @public_endpoint
@@ -1898,7 +1898,7 @@ def passwordreset():
     AzureAuthentication.REDIRECT_PATH)  # Its absolute URL must match your app's redirect_uri set in AAD
 def authorized():
     try:
-        #print(AzureAuthentication.REDIRECT_PATH)
+        print("REDIRECT PATH: ",AzureAuthentication.REDIRECT_PATH)
         cache = _load_cache()
         result = _build_msal_app(cache=cache).acquire_token_by_auth_code_flow(
             session.get("flow", {}), request.args)

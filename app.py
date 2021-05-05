@@ -1896,7 +1896,7 @@ def passwordreset():
 @public_endpoint
 @app.route(
     AzureAuthentication.REDIRECT_PATH)  # Its absolute URL must match your app's redirect_uri set in AAD
-def authorized():
+def authorized():   
     try:
         print("REDIRECT PATH: ",AzureAuthentication.REDIRECT_PATH)
         cache = _load_cache()
@@ -1946,10 +1946,13 @@ def _build_msal_app(cache=None, authority=None):
         client_credential=AzureAuthentication.CLIENT_SECRET, token_cache=cache)
 
 
-def _build_auth_code_flow(authority=None, scopes=None):
+
+def _build_auth_code_flow(authority=None, scopes=None,schema='https'):
+    if 'localhost' in request.url:
+        schema="http"
     return _build_msal_app(authority=authority).initiate_auth_code_flow(
         scopes or [],
-        redirect_uri=url_for("authorized", _external=True))
+        redirect_uri=url_for("authorized", _external=True,_scheme=schema))
 
 
 def _get_token_from_cache(scope=None):

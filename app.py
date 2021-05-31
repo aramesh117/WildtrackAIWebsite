@@ -13,6 +13,7 @@ from datetime import datetime
 import msal
 from PIL import Image, ImageDraw
 from flask import Flask, render_template, session, request, redirect, url_for, jsonify
+import requests
 from flask_basicauth import BasicAuth
 from ibm_botocore.client import ClientError
 
@@ -557,7 +558,9 @@ def get_species_image_count():
 
 def get_individuals_by_species():
     global colsightings
-
+    Species=""
+    AnimalName=""
+    Sex=""
     individuals_by_species = {}
 
     for sighting in colsightings.find():
@@ -1848,6 +1851,14 @@ def delete_sighting():
     status=del_sighting(ID)
     return json.dumps({'status':status})
 
+
+def query(v,r,headers):
+    #print(v,r,headers)
+    dest="https://graph.microsoft.com/{v}/{r}".format(v=v,r=r)
+    result=requests.get(dest,headers=headers).json()
+    print("RESULT: ",result)
+    return result
+
 #######################################################
 # Azure B2C Login Endpoints Start
 #######################################################
@@ -1898,7 +1909,7 @@ def passwordreset():
     AzureAuthentication.REDIRECT_PATH)  # Its absolute URL must match your app's redirect_uri set in AAD
 def authorized():   
     try:
-        print("REDIRECT PATH: ",AzureAuthentication.REDIRECT_PATH)
+        #print("REDIRECT PATH: ",AzureAuthentication.REDIRECT_PATH)
         cache = _load_cache()
         result = _build_msal_app(cache=cache).acquire_token_by_auth_code_flow(
             session.get("flow", {}), request.args)
@@ -1911,6 +1922,12 @@ def authorized():
             else:
                 return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
+        print("RESULT: ",result)
+        header={'Authorization':'Bearer '+result.get("id_token")}
+        print("HEADER ",header)
+        add_info=query('v1.0','me',header)
+        print(add_info)
+
         #print(session["user"])
         _save_cache(cache)
     except ValueError:  # Usually caused by CSRF

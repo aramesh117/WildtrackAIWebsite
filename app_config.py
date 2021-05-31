@@ -48,3 +48,5 @@ class AzureAuthentication:
     SCOPE = []  # Example with two exposed scopes: ["demo.read", "demo.write"]
 
     SESSION_TYPE = "filesystem"  # Specifies the token cache should be stored in server-side session
+
+    

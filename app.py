@@ -3,6 +3,16 @@
 # 12/2020 - JTD - Update to point to WildTrack MongoDB instance and Azure Blob Store
 
 
+<<<<<<< HEAD
+=======
+
+from flask import Flask,render_template,jsonify,request
+from flask_basicauth import BasicAuth
+import dns
+import pymongo
+import pprint
+import io
+>>>>>>> 8458a7d3a1fa10a7e915b6cd0b8610f092413170
 import base64
 import io
 import json
@@ -119,6 +129,7 @@ last_model_refresh = ""
 current_sightings_search = ""
 Alldocs = []
 species_image_counts = {}
+<<<<<<< HEAD
 Species_Master = sorted(
     ["Tiger: Amur", "Tiger: Bengal", "Cheetah: South East African", "Leopard: African", "Puma",
      "Jaguar",
@@ -145,6 +156,12 @@ def check_azure_login():
         #    print("Secured url: ",url)
         #    return redirect(url, code=code)
         return
+=======
+#Species_Master=sorted(["Tiger: Amur","Tiger: Bengal","Cheetah: South East African","Leopard: African","Puma","Jaguar","Lion: African","Elephant: African",
+#"Rhino: Black","Rhino: White","Tapir: Lowland","Bongo: Eastern Mountain","Otter: Eurasian","Panda: Giant"])
+#Species_Master=sorted(["Amur Tiger","Bengal Tiger","Cheetah","Leopard","Puma","Jaguar","African lion","African elephant",
+#"Black Rhino","White Rhino","Lowland Tapir","Bongo","Otter"])
+>>>>>>> 8458a7d3a1fa10a7e915b6cd0b8610f092413170
 
 
 def public_endpoint(function):
@@ -444,7 +461,7 @@ def get_model_stats(jsonified=True, task='Individual_Identification'):
                         line[tag] = str(round(100 * data["Accuracy"], 2))
                 line["header"] = species
             except:
-                print("Error retrieving Model stats")
+                print("Error retrieving Model stats",tag,data)
             result.append(line)
 
         break

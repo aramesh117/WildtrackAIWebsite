@@ -32,7 +32,7 @@
                 </button>
             </div>
             <div class = "col-12">
-            <h8>Please upload any multiple footprints taken from one continuous path (trail) as a group in the same observation</h8>
+            <h8 class = "text-danger ">Please upload any multiple footprints taken from one continuous path (trail) as a group in the same observation</h8>
             </div>
             
             
@@ -159,6 +159,16 @@
                   <div class = "col-md-3">
                       <input type= "time" id = "time" name="time" class = "form-control" placeholder = "select time">
                   </div>
+                  
+                  <label for ="status" class = "col-md-1">Found In</label>
+                  <div class = "col-md-3" >
+                    <input type = "radio" id = "captive" name = "status" value = "Captive">
+                    <label for = "male">Captivity</label>
+                    <input class = "ml-1" type = "radio" id = "wild" name = "status" value = "Wild">
+                    <label for = "female">Wild</label>
+                  
+               
+                </div>
                 </div>
 
 
@@ -495,6 +505,12 @@
                 valign: 'middle',
                 visible: false
               }, {
+                title: 'status',
+                field: 'status',
+                align: 'center',
+                valign: 'middle',
+                visible: false
+              },{
                 title: 'Predicted Individual',
                 field: 'Individual_Inference',
                 align: 'center',

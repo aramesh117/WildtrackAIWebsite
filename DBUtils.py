@@ -135,7 +135,9 @@ def create_observation(data,files,source="wildtrack-website"):
             'Species': data.get("species",""),
             'AnimalName': data.get("animalname",""),
             'AnimalID': data.get("animalid",""),
-            'Sex': data.get("sex","")},
+            'Sex': data.get("sex",""),
+            'status': data.get("status","")},
+            
         'References': {
             'Source': source},
         'Comments': {
